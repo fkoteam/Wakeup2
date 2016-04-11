@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Wakeup</string>
+    <string name="action_settings">Settings</string>
+    <string name="cancel">Cancelar</string>
+    <string name="preference_alarms_file">com.fkoteam.wakeup.ALARM_PREFERENCES</string>
+    <string name="empty">Presiona el botón inferior para añadir una alarma</string>
+    <string name="title_activity_alarm_fired">alarmFired</string>
+
+
+</resources>
