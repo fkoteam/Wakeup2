@@ -46,6 +46,7 @@ public class AlarmFired extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
                         MainActivity.class);
+                intent.putExtra("tryDisableAlarm", idAlarm);
                 startActivity(intent);
                 finish();
                 WakeLocker.release();

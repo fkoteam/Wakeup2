@@ -11,6 +11,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.Vibrator;
@@ -19,6 +20,7 @@ import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -124,6 +126,24 @@ public class MediaPlayerService extends Service {
 
                 mp.setDataSource(urlMusic);
 
+                mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    public void onPrepared(MediaPlayer mp) {
+
+                        mp.start();
+                        vibrate();
+                    }
+                });
+
+                mp.setOnErrorListener(new MediaPlayer.OnErrorListener(){
+
+                                          @Override
+                                          public boolean onError(MediaPlayer mp, int what, int extra) {
+                                              alarmError();
+                                              return false;
+                                          }
+                                      });
+
+
                 mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
                     @Override
@@ -133,7 +153,7 @@ public class MediaPlayerService extends Service {
                         mp.reset();
                     }
                 });
-                mp.prepare();
+                mp.prepareAsync();
                 prepared = true;
             } catch (IllegalArgumentException e) {
                 // TODO Auto-generated catch block
@@ -191,26 +211,36 @@ public class MediaPlayerService extends Service {
             Log.d("Prepared", "//" + prepared);
             if(!prepared)
             {
-                try{
-                    if(mp!=null)
-                    {
-                        mp.stop();
-                        mp.release();
-                    }
-                }
-                catch(Exception e)
-                {
-                }
-                finally {
-                    mp=null;
-                    mp = MediaPlayer.create(getApplicationContext(), R.raw.ring);
-                    mp.setLooping(true);
+                alarmError();
+            }
 
+
+
+        }
+
+        private void alarmError() {
+            try{
+                if(mp!=null)
+                {
+                    mp.stop();
+                    mp.release();
                 }
+            }
+            catch(Exception e)
+            {
+            }
+            finally {
+                mp=null;
+                mp = MediaPlayer.create(getApplicationContext(), R.raw.ring);
+                mp.setLooping(true);
 
             }
             mp.start();
+            vibrate();
 
+        }
+
+        private void vibrate() {
             if (vibrator == null)
                 vibrator = (Vibrator) getApplicationContext().getSystemService(getApplicationContext().VIBRATOR_SERVICE);
 
@@ -218,7 +248,6 @@ public class MediaPlayerService extends Service {
 
 
             vibrator.vibrate(pattern, 0);
-
         }
 
         public Player() {

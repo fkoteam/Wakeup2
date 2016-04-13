@@ -15,13 +15,34 @@ public class AlarmInfo implements Serializable {
     int minuteAlarm;
     boolean active;
     int idAlarm;
+    boolean repeatMon;
+    boolean repeatTue;
+    boolean repeatWed;
+    boolean repeatThu;
+    boolean repeatFri;
+    boolean repeatSat;
+    boolean repeatSun;
 
 
-    public AlarmInfo(String txtTimeAlarm, int hourAlarm, int minuteAlarm) {
+    public AlarmInfo(String txtTimeAlarm, int hourAlarm, int minuteAlarm,boolean repeatMon,
+            boolean repeatTue,
+            boolean repeatWed,
+            boolean repeatThu,
+            boolean repeatFri,
+            boolean repeatSat,
+            boolean repeatSun) {
         this.txtTimeAlarm = txtTimeAlarm;
         this.hourAlarm = hourAlarm;
         this.minuteAlarm = minuteAlarm;
         this.active=true;
+
+        this.repeatMon=repeatMon;
+                this.repeatTue=repeatTue;
+                this.repeatWed=repeatWed;
+        this.repeatThu=repeatThu;
+                this.repeatFri=repeatFri;
+                this.repeatSat=repeatSat;
+                this.repeatSun=repeatSun;
     }
 
     public String getTxtTimeAlarm() {
@@ -63,5 +84,13 @@ public class AlarmInfo implements Serializable {
 
     public void setIdAlarm(int idAlarm) {
         this.idAlarm = idAlarm;
+    }
+
+
+    public boolean anyRepeat()
+    {
+        if(repeatMon || repeatTue || repeatWed || repeatThu || repeatFri || repeatSat || repeatSun)
+            return true;
+        return false;
     }
 }
