@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                             AlarmInfo ai = new AlarmInfo(txtTime.getText()+"", hourInt, minuteInt,((CheckBox)popupView.findViewById(R.id.checkMon)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkTue)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkWed)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkThu)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkFri)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkSat)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkSun)).isChecked());
                             //el id de la alarma es la fecha actual en milis
-                            ai.setIdAlarm((int) System.currentTimeMillis());
+                            ai.setIdAlarm();
                             addAlarm(ai);
 
                             popupWindow.dismiss();
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                                             @Override
                                                             public void onClick(DialogInterface dialog, int which) {
-                                                                deleteAlarm(position);
+                                                                deleteAlarm(position,true);
                                                             }
                                                         })
                                                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -226,24 +226,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int pos=0;
         for(AlarmInfo ai:currentAlarms)
         {
-            if(ai.getIdAlarm()==tryDisableAlarm)
+            if(ai.findAlarm(tryDisableAlarm))
             {
                 if(!ai.anyRepeat())
                 {
 
                         currentAlarms.get(pos).setActive(false);
-                        Intent myIntent = new Intent(getBaseContext(),
-                                AlarmReceiver.class);
-
-                        PendingIntent pendingIntent
-                                = PendingIntent.getBroadcast(getBaseContext(),
-                                tryDisableAlarm, myIntent, 0);
-
-                        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-
-                        manager.cancel(pendingIntent);
-                        pendingIntent.cancel();
+                        deleteAlarm(pos,false);
 
 
                         saveData();
@@ -316,37 +305,79 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 
-
-
-
                 /* Retrieve a PendingIntent that will perform a broadcast */
         Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
 
-        alarmIntent.putExtra("idAlarm", t.getIdAlarm());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm(), alarmIntent, 0);
 
 
         if (t.anyRepeat()) {
+            int i=0;
             if (t.repeatMon) {
+                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                i++;
+
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
                         setCalendarAlarm(2,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+
+
+
             }
             if (t.repeatTue) {
+                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                i++;
+
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(3,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
+                        setCalendarAlarm(3, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
             if (t.repeatWed) {
+                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                i++;
+
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
                         setCalendarAlarm(4,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
             if (t.repeatThu) {
+                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                i++;
+
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(5,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
+                        setCalendarAlarm(5, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
             if (t.repeatFri) {
+                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+                i++;
+
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(6,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
+                        setCalendarAlarm(6, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
             if (t.repeatSat) {
+                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);
+                i++;
+
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(7,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
+                        setCalendarAlarm(7, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
             if (t.repeatSun) {
+                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                i++;
+
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
                         setCalendarAlarm(1,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
 
@@ -360,6 +391,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             int diff = (int) (Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis());
             if (diff > 0)
                 calendar.add(Calendar.DATE, 1);
+
+
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(0).intValue());
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(0).intValue(), alarmIntent, 0);
+
 
             manager.set(AlarmManager.RTC_WAKEUP,
                     calendar.getTimeInMillis(), pendingIntent);
@@ -395,6 +431,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         timestamp.set(Calendar.HOUR_OF_DAY, myAlarmHour);
         timestamp.set(Calendar.MINUTE, myAlarmMinute);
         timestamp.set(Calendar.SECOND, 0);
+        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Log.i("ALARM"+myAlarmDayOfTheWeek,format1.format(timestamp.getTime()));
         return timestamp;
     }
 
@@ -405,23 +443,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             view.setBackgroundColor(Color.LTGRAY);
             ((TextView) view.findViewById(R.id.textViewHora)).setTextColor(Color.GRAY);
             currentAlarms.get(position).setActive(false);
-            Intent myIntent = new Intent(getBaseContext(),
-                    AlarmReceiver.class);
-
-            PendingIntent pendingIntent
-                    = PendingIntent.getBroadcast(getBaseContext(),
-                    currentAlarms.get(position).getIdAlarm(), myIntent, 0);
-
-            AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-
-            manager.cancel(pendingIntent);
-            pendingIntent.cancel();
-
-
-
-
             saveData();
+
+
+            deleteAlarm(position,false);
+
+
+
+
+
 
 
             //todo
@@ -562,26 +592,34 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private void deleteAlarm(int position) {
-
-        Intent myIntent = new Intent(getBaseContext(),
-                AlarmReceiver.class);
-
-        PendingIntent pendingIntent
-                = PendingIntent.getBroadcast(getBaseContext(),
-                currentAlarms.get(position).getIdAlarm(), myIntent, 0);
-
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+    private void deleteAlarm(int position,boolean deleteFromList) {
 
 
-        manager.cancel(pendingIntent);
-        pendingIntent.cancel();
 
 
-        currentAlarms.remove(position);
+        for(Integer idAlarm : currentAlarms.get(position).getIdAlarm()) {
+            Intent myIntent = new Intent(getBaseContext(),
+                    AlarmReceiver.class);
 
-        saveData();
-        listAdapter.notifyDataSetChanged();
+            PendingIntent pendingIntent
+                    = PendingIntent.getBroadcast(getBaseContext(),
+                    idAlarm.intValue(), myIntent, 0);
+
+            AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+
+            manager.cancel(pendingIntent);
+            pendingIntent.cancel();
+        }
+
+
+        if(deleteFromList) {
+            currentAlarms.remove(position);
+
+            saveData();
+            listAdapter.notifyDataSetChanged();
+        }
+
 
 
     }
@@ -639,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //7 falses porque el snooze no se repite según día de la semana
         AlarmInfo t=new AlarmInfo(hourTxt+":"+minuteTxt, Integer.parseInt(hourTxt), Integer.parseInt(minuteTxt),false,false,false,false,false,false,false);
-        t.setIdAlarm((int) System.currentTimeMillis());
+        t.setIdAlarm();
         startAlarm(t);
         WakeLocker.release();
 

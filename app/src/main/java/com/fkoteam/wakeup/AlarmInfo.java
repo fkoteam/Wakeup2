@@ -7,6 +7,8 @@ import android.media.MediaPlayer;
 import android.widget.Toast;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AlarmInfo implements Serializable {
 
@@ -14,7 +16,9 @@ public class AlarmInfo implements Serializable {
     int hourAlarm;
     int minuteAlarm;
     boolean active;
-    int idAlarm;
+
+    //listado de alarmas. Pueden ser 7 si se repiten todos los dias
+    List<Integer> idAlarm;
     boolean repeatMon;
     boolean repeatTue;
     boolean repeatWed;
@@ -78,19 +82,64 @@ public class AlarmInfo implements Serializable {
         this.active = active;
     }
 
-    public int getIdAlarm() {
+    public List<Integer> getIdAlarm() {
         return idAlarm;
     }
 
-    public void setIdAlarm(int idAlarm) {
+    public void setIdAlarm(List<Integer> idAlarm) {
         this.idAlarm = idAlarm;
     }
 
+
+    //calculamos los id's automaticamente
+    public void setIdAlarm() {
+        idAlarm=new ArrayList<Integer>();
+        int currentTimeMillis=(int) System.currentTimeMillis( ) % Integer.MAX_VALUE;
+        //no se repite: solo un id. se repite: un id para cada dia
+        if(!anyRepeat())
+            idAlarm.add(currentTimeMillis);
+        else {
+            if(repeatMon)
+                idAlarm.add(++currentTimeMillis);
+            if(repeatTue)
+                idAlarm.add(++currentTimeMillis);
+            if(repeatWed)
+                idAlarm.add(++currentTimeMillis);
+            if(repeatThu)
+                idAlarm.add(++currentTimeMillis);
+            if(repeatFri)
+                idAlarm.add(++currentTimeMillis);
+            if(repeatSat)
+                idAlarm.add(++currentTimeMillis);
+            if(repeatSun)
+                idAlarm.add(++currentTimeMillis);
+
+        }
+
+
+
+    }
 
     public boolean anyRepeat()
     {
         if(repeatMon || repeatTue || repeatWed || repeatThu || repeatFri || repeatSat || repeatSun)
             return true;
         return false;
+    }
+
+
+    public boolean findAlarm(int alarmToSearch)
+    {
+        if(idAlarm==null ||idAlarm.size()==0 )
+            return false;
+        else
+        {
+            for(Integer id : idAlarm)
+            {
+                if(id!=null && id.intValue()==alarmToSearch)
+                    return true;
+            }
+            return false;
+        }
     }
 }

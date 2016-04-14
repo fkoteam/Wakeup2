@@ -39,6 +39,7 @@ public class MediaPlayerService extends Service {
 
     // Vibrate the mobile phone
     Vibrator vibrator = null;
+    boolean ringing=false;
 
 
     @Override
@@ -231,12 +232,18 @@ public class MediaPlayerService extends Service {
             }
             finally {
                 mp=null;
-                mp = MediaPlayer.create(getApplicationContext(), R.raw.ring);
-                mp.setLooping(true);
+
+                    mp = MediaPlayer.create(getApplicationContext(), R.raw.ring);
+                    mp.setLooping(true);
+
 
             }
-            mp.start();
-            vibrate();
+            if(!ringing)
+            {
+                mp.start();
+                vibrate();
+                ringing=true;
+            }
 
         }
 
