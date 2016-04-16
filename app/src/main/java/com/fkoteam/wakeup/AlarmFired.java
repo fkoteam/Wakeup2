@@ -10,10 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import java.util.Calendar;
 
 public class AlarmFired extends AppCompatActivity {
+    int progress = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +29,32 @@ public class AlarmFired extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         final int idAlarm=b.getInt("idAlarm");
+        final int typeAlarm=b.getInt("typeAlarm");
+
+        SeekBar seekSnooze = (SeekBar) findViewById(R.id.seekSnooze);
+
+
+        seekSnooze.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+                progress = progresValue;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
+                //todo
+                textView.setText(seekBarToMinutes(progress) + " minutes");
+
+            }
+        });
+
 
 
 
@@ -73,8 +103,13 @@ public class AlarmFired extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
                         MainActivity.class);
-                //5minutos
-                intent.putExtra("snooze", 5);
+
+                intent.putExtra("snooze", seekBarToMinutes(progress));
+                intent.putExtra("typeAlarm", typeAlarm);
+                intent.putExtra("idAlarm",idAlarm);
+
+
+
                 startActivity(intent);
                 finish();
                 WakeLocker.release();
@@ -86,6 +121,37 @@ public class AlarmFired extends AppCompatActivity {
         });
 
 
+    }
+
+
+    private int seekBarToMinutes(int progress)
+    {
+        //0 -> 1 minuto
+        //1 -> 2 minutos
+        //2 -> 5 minutos
+        //3 -> 8 minutos
+        //4 -> 10 minutos
+        //5 -> 15 minutos
+        //6 -> 20 minutos
+
+        if(progress==0)
+            return 1;
+        if(progress==1)
+            return 2;
+        if(progress==2)
+            return 5;
+        if(progress==3)
+            return 8;
+        if(progress==4)
+            return 10;
+        if(progress==5)
+            return 15;
+        if(progress==6)
+            return 20;
+
+
+
+        return 5;
     }
 
 }

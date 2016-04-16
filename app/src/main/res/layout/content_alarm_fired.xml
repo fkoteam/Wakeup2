@@ -15,13 +15,53 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="0dp"
+        android:id="@+id/linearLayout3">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Snoozing Time" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_margin="0dp">
+        android:layout_margin="0dp"
+        android:id="@+id/linearLayout0">
+
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekSnooze"
+            android:max="5"
+            android:layout_alignBottom="@+id/linearLayout"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:progress="2"/>
+
+    </LinearLayout>
+        <TextView
+            android:id="@+id/snoozeTimeTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5 minutes" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="0dp"
+        android:id="@+id/linearLayout">
         <Button
             android:id="@+id/snooze"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Snooze" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
         <Button
             android:id="@+id/stopAlarm"
             android:layout_width="wrap_content"
@@ -29,4 +69,5 @@
             android:text="Stop alarm" />
     </LinearLayout>
 
+</LinearLayout>
 </RelativeLayout>

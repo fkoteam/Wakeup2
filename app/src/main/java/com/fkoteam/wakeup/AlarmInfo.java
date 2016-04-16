@@ -1,5 +1,6 @@
 package com.fkoteam.wakeup;
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,10 @@ public class AlarmInfo implements Serializable {
 
     //listado de alarmas. Pueden ser 7 si se repiten todos los dias
     List<Integer> idAlarm;
+    List<PendingIntent> pendingIntents;
+
+    //0- classical, 1-nature
+    int typeAlarm;
     boolean repeatMon;
     boolean repeatTue;
     boolean repeatWed;
@@ -34,11 +39,12 @@ public class AlarmInfo implements Serializable {
             boolean repeatThu,
             boolean repeatFri,
             boolean repeatSat,
-            boolean repeatSun) {
+            boolean repeatSun,int typeAlarm) {
         this.txtTimeAlarm = txtTimeAlarm;
         this.hourAlarm = hourAlarm;
         this.minuteAlarm = minuteAlarm;
         this.active=true;
+        this.typeAlarm=typeAlarm;
 
         this.repeatMon=repeatMon;
                 this.repeatTue=repeatTue;
@@ -141,5 +147,30 @@ public class AlarmInfo implements Serializable {
             }
             return false;
         }
+    }
+
+
+    public List<PendingIntent> getPendingIntents() {
+        return pendingIntents;
+    }
+
+    public void setPendingIntents(List<PendingIntent> pendingIntents) {
+        this.pendingIntents = pendingIntents;
+    }
+
+    public void addPendingIntent(PendingIntent pendingIntent) {
+        if(pendingIntents==null)
+        {
+            pendingIntents=new ArrayList<PendingIntent>();
+        }
+        pendingIntents.add(pendingIntent);
+    }
+
+    public int getTypeAlarm() {
+        return typeAlarm;
+    }
+
+    public void setTypeAlarm(int typeAlarm) {
+        this.typeAlarm = typeAlarm;
     }
 }

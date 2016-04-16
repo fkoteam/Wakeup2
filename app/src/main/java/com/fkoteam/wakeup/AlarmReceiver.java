@@ -49,6 +49,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             //le pasamos el id de la alarma a AlarmFired
             int idAlarm = intent.getIntExtra("idAlarm", -1);
             intent2.putExtra("idAlarm", idAlarm);
+            intent2.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
 
 
             intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);

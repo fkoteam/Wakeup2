@@ -79,7 +79,7 @@ public class MediaPlayerService extends Service {
 
 
         new Player()
-                .execute();
+                .execute(new Integer(intent.getIntExtra("typeAlarm",0)));
 
         //mp.setLooping(true);
         //mp.start();
@@ -97,10 +97,10 @@ public class MediaPlayerService extends Service {
      * @author piyush
      */
 
-    class Player extends AsyncTask<Void, Void, Boolean> {
+    class Player extends AsyncTask<Integer, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground(Integer... params) {
             // TODO Auto-generated method stub
             Boolean prepared;
             try {
@@ -111,7 +111,9 @@ public class MediaPlayerService extends Service {
                 }
 
 
-                String contMusic=connect("http://fkoteam.github.io/0");
+                //para musica clasica iria a buscar 00
+                //para naturaleza, 01
+                String contMusic=connect("http://fkoteam.github.io/0"+String.valueOf(params));
 
 
 
@@ -120,7 +122,7 @@ public class MediaPlayerService extends Service {
                 int randomNum = new Random().nextInt(numMusic) + 1;
 
 
-                String urlMusic=connect("http://fkoteam.github.io/"+Integer.toString(randomNum));
+                String urlMusic=connect("http://fkoteam.github.io/"+Integer.toString(randomNum)+String.valueOf(params));
 
                 if(urlMusic==null || urlMusic.length()<1)
                     throw new Exception();
