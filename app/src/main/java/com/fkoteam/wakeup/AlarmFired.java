@@ -27,7 +27,7 @@ public class AlarmFired extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_fired);
         AdView mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
         mAdView.loadAd(adRequest);
 
 
@@ -129,8 +129,6 @@ public class AlarmFired extends AppCompatActivity {
                 intent.putExtra("snooze", seekBarToMinutes(progress));
                 intent.putExtra("typeAlarm", typeAlarm);
                 intent.putExtra("tryDisableAlarm", idAlarm);
-
-
 
 
                 WakeLocker.release();

@@ -23,7 +23,6 @@ public class AlarmInfo implements Serializable {
 
     //listado de alarmas. Pueden ser 7 si se repiten todos los dias
     List<Integer> idAlarm;
-    List<PendingIntent> pendingIntents;
 
     //0- classical, 1-nature
     int typeAlarm;
@@ -153,21 +152,8 @@ public class AlarmInfo implements Serializable {
     }
 
 
-    public List<PendingIntent> getPendingIntents() {
-        return pendingIntents;
-    }
 
-    public void setPendingIntents(List<PendingIntent> pendingIntents) {
-        this.pendingIntents = pendingIntents;
-    }
 
-    public void addPendingIntent(PendingIntent pendingIntent) {
-        if(pendingIntents==null)
-        {
-            pendingIntents=new ArrayList<PendingIntent>();
-        }
-        pendingIntents.add(pendingIntent);
-    }
 
     public int getTypeAlarm() {
         return typeAlarm;

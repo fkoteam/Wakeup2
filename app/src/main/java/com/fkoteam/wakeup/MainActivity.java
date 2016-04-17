@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if(ai!=null) {
                 if(snooze>-2)
                 {
-                    stopAlarm(ai,idAlarm);
+                    stopAlarm(idAlarm);
                 }
                 if(snooze>0)
                     snoozeAlarm(snooze, typeAlarm, ai);
@@ -241,25 +241,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private void stopAlarm(AlarmInfo ai, int idAlarm) {
+    private void stopAlarm( int idAlarm) {
 
-        int i=0;
 
-        for (Integer idAlarmList : ai.getIdAlarm()) {
-
-            if (idAlarm == idAlarmList.intValue()) {
 
                 AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-                PendingIntent pendingIntent=ai.getPendingIntents().get(i);
-                if (pendingIntent != null) {
+                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+                alarmIntent.setAction(String.valueOf(idAlarm));
 
-                    manager.cancel(pendingIntent);
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,idAlarm, alarmIntent, 0);
+
+
+
+                manager.cancel(pendingIntent);
                     pendingIntent.cancel();
-                }
-            }
-            i++;
-        }
+
+
+
 
     }
 
@@ -420,11 +420,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 /* Retrieve a PendingIntent that will perform a broadcast */
                 Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
                 alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                t.addPendingIntent(pendingIntent);
                 i++;
 
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -435,12 +434,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 /* Retrieve a PendingIntent that will perform a broadcast */
                 Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
                 alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                t.addPendingIntent(pendingIntent);
                 i++;
 
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -454,7 +452,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                t.addPendingIntent(pendingIntent);
                 i++;
 
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -463,13 +460,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 /* Retrieve a PendingIntent that will perform a broadcast */
                 Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
                 alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                t.addPendingIntent(pendingIntent);
                 i++;
 
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -478,12 +474,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 /* Retrieve a PendingIntent that will perform a broadcast */
                 Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
                 alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent,0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                t.addPendingIntent(pendingIntent);
                 i++;
 
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -492,12 +487,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 /* Retrieve a PendingIntent that will perform a broadcast */
                 Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
                 alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                t.addPendingIntent(pendingIntent);
                 i++;
 
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -506,12 +500,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 /* Retrieve a PendingIntent that will perform a broadcast */
                 Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
                 alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                t.addPendingIntent(pendingIntent);
                 i++;
 
                 manager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -540,7 +533,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
             PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(0).intValue(), alarmIntent, 0);
-            t.addPendingIntent(pendingIntent);
 
 
             manager.set(AlarmManager.RTC_WAKEUP,
@@ -549,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         }
-        saveData();
+
     }
 
     private Calendar setCalendarAlarm(int myAlarmDayOfTheWeek,int myAlarmHour,int myAlarmMinute) {
@@ -748,18 +740,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void deleteAlarm(int position,boolean deleteFromList) {
 
 
-
-        if(currentAlarms.get(position).getPendingIntents()!=null) {
-            for (PendingIntent pendingIntent : currentAlarms.get(position).getPendingIntents()) {
+            for (Integer idAlarm : currentAlarms.get(position).getIdAlarm()) {
 
                 AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-                if(pendingIntent!=null) {
+                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+                alarmIntent.setAction(String.valueOf(idAlarm));
+
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,idAlarm, alarmIntent, 0);
+
+
+
+                manager.cancel(pendingIntent);
+                pendingIntent.cancel();
 
                     manager.cancel(pendingIntent);
                     pendingIntent.cancel();
-                }
-            }
+
         }
 
 
