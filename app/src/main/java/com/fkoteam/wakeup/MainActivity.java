@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Bundle b = getIntent().getExtras();
         if(b!=null)
         {
-            int snooze = b.getInt("snooze");
+            int snooze = b.getInt("snooze",-2);
             int typeAlarm=0;
             typeAlarm=b.getInt("typeAlarm");
             int idAlarm = b.getInt("tryDisableAlarm");
@@ -86,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
 
             if(ai!=null) {
+                if(snooze>-2)
+                {
+                    stopAlarm(ai,idAlarm);
+                }
                 if(snooze>0)
                     snoozeAlarm(snooze, typeAlarm, ai);
                 else
@@ -234,6 +238,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
+
+    }
+
+    private void stopAlarm(AlarmInfo ai, int idAlarm) {
+
+        int i=0;
+
+        for (Integer idAlarmList : ai.getIdAlarm()) {
+
+            if (idAlarm == idAlarmList.intValue()) {
+
+                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+                PendingIntent pendingIntent=ai.getPendingIntents().get(i);
+                if (pendingIntent != null) {
+
+                    manager.cancel(pendingIntent);
+                    pendingIntent.cancel();
+                }
+            }
+            i++;
+        }
 
     }
 
@@ -395,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
                 alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
-                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
                 t.addPendingIntent(pendingIntent);
@@ -411,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
                 alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
 
-                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
                 t.addPendingIntent(pendingIntent);
@@ -425,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
                 alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
 
-                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
                 t.addPendingIntent(pendingIntent);
@@ -439,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
                 alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
 
-                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
@@ -454,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
                 alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
 
-                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent,0);//PendingIntent.FLAG_UPDATE_CURRENT);
                 t.addPendingIntent(pendingIntent);
@@ -468,7 +494,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
                 alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
 
-                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
                 t.addPendingIntent(pendingIntent);
@@ -482,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
                 alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
 
-                alarmIntent.setAction(Long.toString(System.currentTimeMillis()));
+                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
                 t.addPendingIntent(pendingIntent);
@@ -509,7 +535,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             /* Retrieve a PendingIntent that will perform a broadcast */
             Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
             alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(0).intValue());
-            alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(0).intValue()));
+
 
             PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(0).intValue(), alarmIntent, 0);
             t.addPendingIntent(pendingIntent);
@@ -519,7 +547,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     calendar.getTimeInMillis(), pendingIntent);
 
 
+
         }
+        saveData();
     }
 
     private Calendar setCalendarAlarm(int myAlarmDayOfTheWeek,int myAlarmHour,int myAlarmMinute) {
@@ -705,10 +735,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (null == currentAlarms) {
             currentAlarms = new ArrayList<AlarmInfo>();
         }
+
+        startAlarm(t);
         currentAlarms.add(t);
 
         saveData();
-        startAlarm(t);
         listAdapter.notifyDataSetChanged();
 
 

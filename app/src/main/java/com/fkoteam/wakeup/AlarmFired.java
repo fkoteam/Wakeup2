@@ -77,7 +77,7 @@ public class AlarmFired extends AppCompatActivity {
         Button btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
         btnCancelPopup.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent myIntent = new Intent(getBaseContext(),
+                /*Intent myIntent = new Intent(getBaseContext(),
                         AlarmReceiver.class);
 
                 PendingIntent pendingIntent
@@ -87,7 +87,7 @@ public class AlarmFired extends AppCompatActivity {
                 AlarmManager alarmManager
                         = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-                alarmManager.cancel(pendingIntent);
+                alarmManager.cancel(pendingIntent);*/
 
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
@@ -95,10 +95,14 @@ public class AlarmFired extends AppCompatActivity {
                 intent.putExtra("snooze", -1);
 
                 intent.putExtra("tryDisableAlarm", idAlarm);
-                startActivity(intent);
-                finish();
+
                 WakeLocker.release();
                 stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
+                startActivity(intent);
+
+                finish();
+
+
 
             }
         });
@@ -106,7 +110,7 @@ public class AlarmFired extends AppCompatActivity {
         Button btnSnoozePopup = (Button) findViewById(R.id.snooze);
         btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent myIntent = new Intent(getBaseContext(),
+               /* Intent myIntent = new Intent(getBaseContext(),
                         AlarmReceiver.class);
 
                 PendingIntent pendingIntent
@@ -116,7 +120,7 @@ public class AlarmFired extends AppCompatActivity {
                 AlarmManager alarmManager
                         = (AlarmManager)getSystemService(ALARM_SERVICE);
 
-                alarmManager.cancel(pendingIntent);
+                alarmManager.cancel(pendingIntent);*/
 
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
@@ -124,16 +128,16 @@ public class AlarmFired extends AppCompatActivity {
 
                 intent.putExtra("snooze", seekBarToMinutes(progress));
                 intent.putExtra("typeAlarm", typeAlarm);
-                intent.putExtra("idAlarm",idAlarm);
                 intent.putExtra("tryDisableAlarm", idAlarm);
 
 
 
 
-                startActivity(intent);
-                finish();
                 WakeLocker.release();
                 stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
+
+                startActivity(intent);
+                finish();
 
 
 
