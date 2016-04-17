@@ -113,7 +113,7 @@ public class MediaPlayerService extends Service {
 
                 //para musica clasica iria a buscar 00
                 //para naturaleza, 01
-                String contMusic=connect("http://fkoteam.github.io/0"+String.valueOf(params));
+                String contMusic=connect("http://fkoteam.github.io/0"+String.valueOf(params[0].intValue()));
 
 
 
@@ -122,7 +122,7 @@ public class MediaPlayerService extends Service {
                 int randomNum = new Random().nextInt(numMusic) + 1;
 
 
-                String urlMusic=connect("http://fkoteam.github.io/"+Integer.toString(randomNum)+String.valueOf(params));
+                String urlMusic=connect("http://fkoteam.github.io/"+String.valueOf(randomNum)+String.valueOf(params[0].intValue()));
 
                 if(urlMusic==null || urlMusic.length()<1)
                     throw new Exception();
@@ -253,10 +253,10 @@ public class MediaPlayerService extends Service {
             if (vibrator == null)
                 vibrator = (Vibrator) getApplicationContext().getSystemService(getApplicationContext().VIBRATOR_SERVICE);
 
-            long[] pattern = {0, 1000, 1500};
+            long[] pattern = {0, 1000, 1500,0, 1000, 1500,0, 1000, 1500,0, 1000, 1500,0, 1000, 1500};
 
 
-            vibrator.vibrate(pattern, 0);
+            vibrator.vibrate(pattern, -1);
         }
 
         public Player() {

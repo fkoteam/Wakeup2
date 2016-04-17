@@ -19,7 +19,7 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Añadir una alarma" />
+                android:text="@string/add_alarm" />
 
             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
@@ -33,10 +33,11 @@
 
                 <EditText
                     android:id="@+id/txtTime"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
-                    android:hint="Select a time"
+                    android:hint="@string/hour_hint"
+                    android:textAlignment="center"
 
                     />
 
@@ -55,13 +56,13 @@
                     <TextView
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Repeat:" />
+                        android:text="@string/repeat" />
 
 
                     <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Mon"
+                        android:text="@string/monday"
                         android:id="@+id/checkMon"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
@@ -74,7 +75,7 @@
                     <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tue"
+                        android:text="@string/tuesday"
                         android:id="@+id/checkTue"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
@@ -82,7 +83,7 @@
                     <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Wed"
+                        android:text="@string/wednesday"
                         android:id="@+id/checkWed"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
@@ -94,7 +95,7 @@
                     <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Thu"
+                        android:text="@string/thursday"
                         android:id="@+id/checkThu"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
@@ -102,7 +103,7 @@
                     <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Fri"
+                        android:text="@string/friday"
                         android:id="@+id/checkFri"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
@@ -116,7 +117,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sat"
+        android:text="@string/saturday"
         android:id="@+id/checkSat"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
@@ -124,7 +125,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sun"
+        android:text="@string/sunday"
         android:id="@+id/checkSun"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
@@ -144,7 +145,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Classical\nMusic" />
+                    android:text="@string/classical"
+                    android:textSize="12dp" />
                 <SeekBar
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
@@ -156,9 +158,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nature\nSounds"
+                    android:text="@string/nature_sounds"
                     android:layout_gravity="right"
-                    />
+                    android:textSize="12dp" />
             </LinearLayout>
 
 
@@ -171,12 +173,12 @@
                 android:id="@+id/dismiss"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Cancelar" />
+                android:text="@string/cancel" />
             <Button
                 android:id="@+id/accept"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Aceptar" />
+                android:text="@string/accept" />
                 </LinearLayout>
         </LinearLayout>
     </LinearLayout>

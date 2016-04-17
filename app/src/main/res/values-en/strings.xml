@@ -1,10 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Relaxing Wake up</string>
-    <string name="banner_ad_unit_id"  translatable="false">ca-app-pub-0425880096341147/5222174677</string>
-
     <string name="action_about">About</string>
     <string name="cancel">Cancel</string>
-    <string name="preference_alarms_file" translatable="false">com.fkoteam.wakeup.ALARM_PREFERENCES</string>
     <string name="title_activity_alarm_fired">Alarm...</string>
     <string name="snoozing_time" >Snoozing Time</string>
     <string name="five_minutes">5 minutes</string>
@@ -22,9 +19,7 @@
     <string name="classical">Classical\nMusic</string>
     <string name="nature_sounds">Nature\nSounds</string>
     <string name="accept">Accept</string>
-    <string name="version" translatable="false">Ver. 1.0</string>
     <string name="about_mess1">All contents are hosted on Archive.org.\nDonate to help this non-profit</string>
-    <string name="url_donate" translatable="false">https://archive.org/donate/</string>
     <string name="close">Close</string>
     <string name="plural">s</string>
     <string name="minute">minute</string>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_mess1">Todos los contenidos están alojados en Archive.org.\nDona para apoyar a esta ONG</string>
+    <string name="accept">Aceptar</string>
+    <string name="action_about">Acerca</string>
+    <string name="add_alarm">Añadir una alarma</string>
+    <string name="alarm_disabled">Alarma desactivada</string>
+    <string name="alarm_enabled">Alarma activada</string>
+    <string name="cancel">Cancelar</string>
+    <string name="classical">Música\nClásica</string>
+    <string name="close">Cerrar</string>
+    <string name="confirm_delete">¿Eliminar alarma a las</string>
+    <string name="confirm_delete_title">Confirme</string>
+    <string name="empty">Presiona el botón inferior para añadir una alarma</string>
+    <string name="five_minutes">5 minutos</string>
+    <string name="friday">Vie</string>
+    <string name="hour_hint">Hora...</string>
+    <string name="minute">minuto</string>
+    <string name="monday">Lun</string>
+    <string name="nature_sounds">Sonidos\nnaturales</string>
+    <string name="no_repeat">Sin repetición</string>
+    <string name="plural">s</string>
+    <string name="repeat">Repetir:</string>
+    <string name="saturday">Sáb</string>
+    <string name="snooze">Posponer</string>
+    <string name="snoozed">pospuesto</string>
+    <string name="snoozing_time">Tiempo a posponer</string>
+    <string name="stop_alarm">Parar alarma</string>
+    <string name="sunday">Dom</string>
+    <string name="thursday">Jue</string>
+    <string name="title">Relaxing Wake up</string>
+    <string name="title_activity_alarm_fired">Alarma...</string>
+    <string name="tuesday">Mar</string>
+    <string name="wednesday">Mié</string>
+    <string name="wrong_hour">Hora incorrecta</string>
+    <string name="connectionProblems">Por problemas de conexión, se reproducirá el sonido por defecto</string>
+</resources>

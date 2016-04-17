@@ -18,6 +18,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -75,14 +77,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             int snooze = b.getInt("snooze");
             int typeAlarm=0;
             typeAlarm=b.getInt("typeAlarm");
-            if(snooze>0)
-                snoozeAlarm(snooze,typeAlarm);
+            int idAlarm = b.getInt("tryDisableAlarm");
+            AlarmInfo ai=null;
+            if(idAlarm>0)
+            {
+                ai=getAlarmById(idAlarm);
 
-            int tryDisableAlarm = b.getInt("tryDisableAlarm");
-            if(tryDisableAlarm>0)
-                tryDisableAlarm(tryDisableAlarm);
+            }
+
+            if(ai!=null) {
+                if(snooze>0)
+                    snoozeAlarm(snooze, typeAlarm, ai);
+                else
+                    unSnoozeAlarm(ai);
 
 
+                tryDisableAlarm(ai);
+
+            }
 
         }
 
@@ -100,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         popupView,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
+                popupWindow.setFocusable(true);
+
                 final TextView txtTime = (TextView) popupView.findViewById(R.id.txtTime);
                 txtTime.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -139,8 +153,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                         catch(Exception e)
                         {
-                            //todo
-                            Toast.makeText(getApplicationContext(), "Hora incorrecta", Toast.LENGTH_SHORT).show();
+
+                            Toast.makeText(getApplicationContext(), getString(R.string.wrong_hour), Toast.LENGTH_SHORT).show();
 
                         }
 
@@ -182,8 +196,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mActionBarToolbar);
-        //TODO
-        getSupportActionBar().setTitle("Wake Up");
+        getSupportActionBar().setTitle(getString(R.string.title));
 
         ListView list = (ListView) this.findViewById(R.id.listView1);
         TextView emptyText = (TextView)findViewById(R.id.empty_list_item);
@@ -197,12 +210,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                                                 // Alternative: show a dialog
                                                 (new AlertDialog.Builder(MainActivity.this))
-                                                        //todo
-                                                        .setMessage("Eliminar alarma a las " + currentAlarms.get(position).getTxtTimeAlarm() + "?")
+                                                        .setMessage(getString(R.string.confirm_delete) +" "+ currentAlarms.get(position).getTxtTimeAlarm() + "H?")
                                                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                                             @Override
                                                             public void onClick(DialogInterface dialog, int which) {
-                                                                deleteAlarm(position,true);
+                                                                deleteAlarm(position, true);
                                                             }
                                                         })
                                                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -211,8 +223,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                                                 // Cancel: do something
                                                             }
                                                         })
-                                                                //todo
-                                                        .setTitle("Confirme ")
+                                                        .setTitle(getString(R.string.confirm_delete_title))
                                                         .show();
 
                                                 return true;
@@ -226,28 +237,91 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private void tryDisableAlarm(int tryDisableAlarm) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_about) {
+            LayoutInflater layoutInflater
+                    = (LayoutInflater) getBaseContext()
+                    .getSystemService(LAYOUT_INFLATER_SERVICE);
+            final View popupViewAbout = layoutInflater.inflate(R.layout.popup_about, null);
+            final PopupWindow popupWindowAbout = new PopupWindow(
+                    popupViewAbout,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            popupWindowAbout.setFocusable(true);
+
+            final FloatingActionButton  addButton=
+                    (FloatingActionButton) MainActivity.this.findViewById(R.id.fab);
+
+
+
+            popupWindowAbout.showAtLocation(addButton, Gravity.CENTER, 0, 0);
+            final Button btnCancelPopupAbout = (Button) popupViewAbout.findViewById(R.id.closePopupAbout);
+            btnCancelPopupAbout.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    popupWindowAbout.dismiss();
+                }
+            });
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void unSnoozeAlarm(AlarmInfo ai) {
+        AlarmInfo ai2=currentAlarms.get(ai.getPosition());
+        ai2.setSnoozed(0);
+        currentAlarms.set(ai.getPosition(), ai2);
+        saveData();
+
+    }
+
+
+    private AlarmInfo getAlarmById(int id) {
 
         int pos=0;
         for(AlarmInfo ai:currentAlarms)
         {
-            if(ai.findAlarm(tryDisableAlarm))
+            if(ai.findAlarm(id))
             {
-                if(!ai.anyRepeat())
-                {
+                ai.setPosition(pos);
 
-                        currentAlarms.get(pos).setActive(false);
-                        deleteAlarm(pos,false);
-
-
-                        saveData();
-
-                }
-
-                return;
+                return ai;
             }
             pos++;
         }
+        return null;
+
+    }
+
+
+
+    private void tryDisableAlarm(AlarmInfo ai) {
+
+
+                if(!ai.anyRepeat())
+                {
+
+                        AlarmInfo ai2=currentAlarms.get(ai.getPosition());
+                    ai2.setActive(false);
+                    currentAlarms.set(ai.getPosition(),ai2);
+                    deleteAlarm(ai.getPosition(),false);
+
+
+                        saveData();
+                        listAdapter.notifyDataSetChanged();
+
+
+                }
+
+
 
     }
 
@@ -498,8 +572,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-            //todo
-            Toast.makeText(this, "Alarma desactivada ", Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(this, getString(R.string.alarm_disabled), Toast.LENGTH_SHORT).show();
 
 
 
@@ -515,8 +589,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             startAlarm(currentAlarms.get(position));
 
-            //todo
-            Toast.makeText(this, "Alarma activada", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.alarm_enabled), Toast.LENGTH_SHORT).show();
 
         }
 
@@ -574,44 +647,49 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             textview.setText(currentAlarms.get(position).getTxtTimeAlarm());
 
             TextView textRepeat = (TextView) convertView.findViewById(R.id.textRepeat);
-            //todo
             String textRepeatTmp="";
             if(currentAlarms.get(position).anyRepeat())
             {
                 if(currentAlarms.get(position).repeatMon)
                 {
-                    textRepeatTmp="Mon ";
+                    textRepeatTmp=getString(R.string.monday)+" ";
                 }
                 if(currentAlarms.get(position).repeatTue)
                 {
-                    textRepeatTmp+="Tue ";
+                    textRepeatTmp+=getString(R.string.tuesday)+" ";
                 }
                 if(currentAlarms.get(position).repeatWed)
                 {
-                    textRepeatTmp+="Wed ";
+                    textRepeatTmp+=getString(R.string.wednesday)+" ";
                 }
                 if(currentAlarms.get(position).repeatThu)
                 {
-                    textRepeatTmp+="Thu ";
+                    textRepeatTmp+=getString(R.string.thursday)+" ";
                 }
                 if(currentAlarms.get(position).repeatFri)
                 {
-                    textRepeatTmp+="Fri ";
+                    textRepeatTmp+=getString(R.string.friday)+" ";
                 }
                 if(currentAlarms.get(position).repeatSat)
                 {
-                    textRepeatTmp+="Sat ";
+                    textRepeatTmp+=getString(R.string.saturday)+" ";
                 }
                 if(currentAlarms.get(position).repeatSun)
                 {
-                    textRepeatTmp+="Sun";
+                    textRepeatTmp+=getString(R.string.sunday);
                 }
             }
             else
             {
-                textRepeatTmp="No repeat";
+                textRepeatTmp=getString(R.string.no_repeat);
             }
 
+            if(currentAlarms.get(position).getSnoozed()>0) {
+                String s="";
+                if(currentAlarms.get(position).getSnoozed()>1)
+                    s=getString(R.string.plural);
+                textRepeatTmp += "\n("+getString(R.string.snoozed)+" " + currentAlarms.get(position).getSnoozed() + " "+getString(R.string.minute)+s+")";
+            }
 
             textview.setText(currentAlarms.get(position).getTxtTimeAlarm());
             textRepeat.setText(textRepeatTmp);
@@ -696,14 +774,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-    private void snoozeAlarm(int minutesSnooze, int typeAlarm)
+    private void snoozeAlarm(int snooze, int typeAlarm, AlarmInfo ai)
     {
+        AlarmInfo ai2=currentAlarms.get(ai.getPosition());
+        ai2.setSnoozed(snooze);
+        currentAlarms.set(ai.getPosition(), ai2);
+        saveData();
+
+
         Calendar today = Calendar.getInstance();
         Calendar cal = (Calendar) today.clone();
 
 
         cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)+ 0);
-        cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + minutesSnooze);
+        cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + snooze);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
@@ -718,9 +802,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //7 falses porque el snooze no se repite según día de la semana
         AlarmInfo t=new AlarmInfo(hourTxt+":"+minuteTxt, Integer.parseInt(hourTxt), Integer.parseInt(minuteTxt),false,false,false,false,false,false,false,typeAlarm);
-        t.setIdAlarm();
+        t.setIdAlarm(currentAlarms.get(ai.getPosition()).getIdAlarm());
         startAlarm(t);
         WakeLocker.release();
+
 
     }
 

@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.util.Calendar;
 
 public class AlarmFired extends AppCompatActivity {
@@ -23,14 +26,24 @@ public class AlarmFired extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_fired);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
 
 
         Bundle b = getIntent().getExtras();
         final int idAlarm=b.getInt("idAlarm");
         final int typeAlarm=b.getInt("typeAlarm");
+        final int isConnected=b.getInt("isConnected");
 
+
+        if(isConnected==0)
+        {
+            TextView connectionProblems = (TextView) findViewById(R.id.connectionProblems);
+            connectionProblems.setText(getString(R.string.connectionProblems));
+
+        }
         SeekBar seekSnooze = (SeekBar) findViewById(R.id.seekSnooze);
 
 
@@ -49,8 +62,11 @@ public class AlarmFired extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
-                //todo
-                textView.setText(seekBarToMinutes(progress) + " minutes");
+                String s="";
+                if(seekBarToMinutes(progress)>1)
+                    s= getString(R.string.plural);
+
+                textView.setText(seekBarToMinutes(progress) + " "+getString(R.string.minute)+s);
 
             }
         });
@@ -76,6 +92,8 @@ public class AlarmFired extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
                         MainActivity.class);
+                intent.putExtra("snooze", -1);
+
                 intent.putExtra("tryDisableAlarm", idAlarm);
                 startActivity(intent);
                 finish();
@@ -107,6 +125,8 @@ public class AlarmFired extends AppCompatActivity {
                 intent.putExtra("snooze", seekBarToMinutes(progress));
                 intent.putExtra("typeAlarm", typeAlarm);
                 intent.putExtra("idAlarm",idAlarm);
+                intent.putExtra("tryDisableAlarm", idAlarm);
+
 
 
 

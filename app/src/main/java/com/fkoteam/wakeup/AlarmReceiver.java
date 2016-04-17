@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
@@ -25,41 +27,69 @@ import java.util.Date;
 public class AlarmReceiver extends WakefulBroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, final Intent intent) {
 
         WakeLocker.acquire(context);
 
         // For our recurring task, we'll just display a message
         /**/
-        Toast.makeText(context, "I'm running" + new Date().toString(), Toast.LENGTH_LONG).show();
-
-
-        context.stopService(new Intent(context, MediaPlayerService.class));
-
-        Intent serviceIntent = new Intent(context,MediaPlayerService.class);
-        context.startService(serviceIntent);
+        //todo
+        //Toast.makeText(context, "I'm running" + new Date().toString(), Toast.LENGTH_LONG).show();
 
 
 
 
-        try {
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    //check if connected!
+                    int waitRetries=0;
+                    boolean isConnected=isConnected(context);
+                    //esperamos 10 veces 2 segundo
+                    while (!isConnected && waitRetries<10) {
+                        //Wait to connect
+                        Thread.sleep(2000);
+                        waitRetries++;
+                        isConnected=isConnected(context);
+                    }
 
-            Intent intent2=new Intent(context, AlarmFired.class);
-
-            //le pasamos el id de la alarma a AlarmFired
-            int idAlarm = intent.getIntExtra("idAlarm", -1);
-            intent2.putExtra("idAlarm", idAlarm);
-            intent2.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
+                    try {
 
 
-            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-            context.startActivity(intent2);
+                        context.stopService(new Intent(context, MediaPlayerService.class));
 
-        }catch (Exception e)
+                        Intent serviceIntent = new Intent(context,MediaPlayerService.class);
+                        context.startService(serviceIntent);
 
-        {
-            Log.e("AlarmReceiver-Error",e.getStackTrace()+"");
-        }
+
+                        Intent intent2=new Intent(context, AlarmFired.class);
+
+                        //le pasamos el id de la alarma a AlarmFired
+                        int idAlarm = intent.getIntExtra("idAlarm", -1);
+                        intent2.putExtra("idAlarm", idAlarm);
+                        intent2.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
+                        intent2.putExtra("isConnected",isConnected?1:0);
+
+
+
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                        context.startActivity(intent2);
+
+                    }catch (Exception e)
+
+                    {
+                        Log.e("AlarmReceiver-Error",e.getStackTrace()+"");
+                    }
+
+
+                } catch (Exception e) {
+                }
+            }
+        };
+        t.start();
+
+
 
 
 
@@ -73,4 +103,15 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     }
 
 
+
+    public static boolean isConnected(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = null;
+        if (connectivityManager != null) {
+            networkInfo = connectivityManager.getActiveNetworkInfo();
+        }
+
+        return networkInfo != null && networkInfo.getState() == NetworkInfo.State.CONNECTED;
+    }
 }

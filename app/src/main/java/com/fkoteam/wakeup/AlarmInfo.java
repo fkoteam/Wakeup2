@@ -17,6 +17,9 @@ public class AlarmInfo implements Serializable {
     int hourAlarm;
     int minuteAlarm;
     boolean active;
+    //casi nunca se usa
+    int position;
+    int snoozed;
 
     //listado de alarmas. Pueden ser 7 si se repiten todos los dias
     List<Integer> idAlarm;
@@ -172,5 +175,21 @@ public class AlarmInfo implements Serializable {
 
     public void setTypeAlarm(int typeAlarm) {
         this.typeAlarm = typeAlarm;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public int getSnoozed() {
+        return snoozed;
+    }
+
+    public void setSnoozed(int snoozed) {
+        this.snoozed = snoozed;
     }
 }
