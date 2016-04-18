@@ -75,8 +75,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if(b!=null)
         {
             int snooze = b.getInt("snooze",-2);
-            int typeAlarm=0;
-            typeAlarm=b.getInt("typeAlarm");
             int idAlarm = b.getInt("tryDisableAlarm");
             AlarmInfo ai=null;
             if(idAlarm>0)
@@ -86,17 +84,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
 
             if(ai!=null) {
-                if(snooze>-2)
-                {
-                    stopAlarm(idAlarm);
-                }
+
+                unSnoozeAlarm(ai);
+
                 if(snooze>0)
-                    snoozeAlarm(snooze, typeAlarm, ai);
-                else
-                    unSnoozeAlarm(ai);
+                    snoozeAlarm(snooze, ai);
 
 
-                tryDisableAlarm(ai);
+                tryDisableAlarm(ai, idAlarm);
+
 
             }
 
@@ -214,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                                                 // Alternative: show a dialog
                                                 (new AlertDialog.Builder(MainActivity.this))
-                                                        .setMessage(getString(R.string.confirm_delete) +" "+ currentAlarms.get(position).getTxtTimeAlarm() + "H?")
+                                                        .setMessage(getString(R.string.confirm_delete) + " " + currentAlarms.get(position).getTxtTimeAlarm() + "H?")
                                                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                                             @Override
                                                             public void onClick(DialogInterface dialog, int which) {
@@ -302,8 +298,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void unSnoozeAlarm(AlarmInfo ai) {
+        if(ai.getSnoozingId()!=null)
+            stopAlarm(ai.getSnoozingId().intValue());
         AlarmInfo ai2=currentAlarms.get(ai.getPosition());
         ai2.setSnoozed(0);
+        ai2.setSnoozingTime(null);
+        ai2.setSnoozingId(null);
         currentAlarms.set(ai.getPosition(), ai2);
         saveData();
 
@@ -315,6 +315,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int pos=0;
         for(AlarmInfo ai:currentAlarms)
         {
+            if(ai.getSnoozingId()!=null && ai.getSnoozingId().intValue()==id) {
+                ai.setPosition(pos);
+                return ai;
+            }
             if(ai.findAlarm(id))
             {
                 ai.setPosition(pos);
@@ -329,13 +333,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-    private void tryDisableAlarm(AlarmInfo ai) {
+    private void tryDisableAlarm(AlarmInfo ai,int idAlarm) {
+
 
 
                 if(!ai.anyRepeat())
                 {
 
-                        AlarmInfo ai2=currentAlarms.get(ai.getPosition());
+                    //si no se repite, se puede eliminar
+                    stopAlarm(idAlarm);
+
+
+                    AlarmInfo ai2=currentAlarms.get(ai.getPosition());
                     ai2.setActive(false);
                     currentAlarms.set(ai.getPosition(),ai2);
                     deleteAlarm(ai.getPosition(),false);
@@ -410,137 +419,155 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 
+    if(t.getSnoozingTime()!=null && t.getSnoozingId()!=null)
+    {
+        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+        alarmIntent.putExtra("idAlarm", t.getSnoozingId().intValue());
+        alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+        alarmIntent.setAction(String.valueOf(t.getSnoozingId().intValue()));
 
 
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getSnoozingId().intValue(), alarmIntent, 0);
+
+        manager.set(AlarmManager.RTC_WAKEUP,
+                t.getSnoozingTime().getTimeInMillis(), pendingIntent);
+    }
+        else {
 
 
-        if (t.anyRepeat()) {
-            int i=0;
-            if (t.repeatMon) {
+    if (t.anyRepeat()) {
+        int i = 0;
+        if (t.repeatMon) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                i++;
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
+            i++;
 
-                manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(2,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    setCalendarAlarm(2, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
 
-            }
-            if (t.repeatTue) {
+        }
+        if (t.repeatTue) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
-                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                i++;
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
+            i++;
 
-                manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(3, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
-            if (t.repeatWed) {
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    setCalendarAlarm(3, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+        }
+        if (t.repeatWed) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm",t.getTypeAlarm());
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
-                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                i++;
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
+            i++;
 
-                manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(4,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
-            if (t.repeatThu) {
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    setCalendarAlarm(4, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+        }
+        if (t.repeatThu) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
-                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                i++;
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
+            i++;
 
-                manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(5, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
-            if (t.repeatFri) {
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    setCalendarAlarm(5, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+        }
+        if (t.repeatFri) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
-                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent,0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                i++;
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
+            i++;
 
-                manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(6, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
-            if (t.repeatSat) {
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    setCalendarAlarm(6, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+        }
+        if (t.repeatSat) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
-                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                i++;
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
+            i++;
 
-                manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(7, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
-            if (t.repeatSun) {
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    setCalendarAlarm(7, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+        }
+        if (t.repeatSun) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-                alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
+            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
 
-                alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
+            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-                i++;
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
+            i++;
 
-                manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        setCalendarAlarm(1,t.getHourAlarm() ,t.getMinuteAlarm() ).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);            }
+            manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    setCalendarAlarm(1, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+        }
 
-        } else {
+    } else {
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.HOUR_OF_DAY, t.getHourAlarm());
-            calendar.set(Calendar.MINUTE, t.getMinuteAlarm());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, t.getHourAlarm());
+        calendar.set(Calendar.MINUTE, t.getMinuteAlarm());
 
-            int diff = (int) (Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis());
-            if (diff > 0)
-                calendar.add(Calendar.DATE, 1);
+        int diff = (int) (Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis());
+        if (diff > 0)
+            calendar.add(Calendar.DATE, 1);
 
 
-            calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
 
 
             /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(0).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(0).intValue()));
+        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+        alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(0).intValue());
+        alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
+        alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(0).intValue()));
 
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,t.getIdAlarm().get(0).intValue(), alarmIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(0).intValue(), alarmIntent, 0);
 
 
-            manager.set(AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(), pendingIntent);
+        manager.set(AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(), pendingIntent);
 
 
-
-        }
+    }
+}
 
     }
 
@@ -803,36 +830,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-    private void snoozeAlarm(int snooze, int typeAlarm, AlarmInfo ai)
+    private void snoozeAlarm(int snooze, AlarmInfo ai)
     {
-        AlarmInfo ai2=currentAlarms.get(ai.getPosition());
-        ai2.setSnoozed(snooze);
-        currentAlarms.set(ai.getPosition(), ai2);
-        saveData();
-
 
         Calendar today = Calendar.getInstance();
         Calendar cal = (Calendar) today.clone();
-
-
         cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)+ 0);
         cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + snooze);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        SimpleDateFormat hour = new SimpleDateFormat(
-                "HH");
+        AlarmInfo ai2=currentAlarms.get(ai.getPosition());
+        ai2.setSnoozed(snooze);
+        ai2.setSnoozingTime(cal);
+        ai2.setSnoozingId();
+        currentAlarms.set(ai.getPosition(), ai2);
+        saveData();
 
-        SimpleDateFormat minute = new SimpleDateFormat(
-                "mm");
 
-        String hourTxt = hour.format(cal.getTime());
-        String minuteTxt = minute.format(cal.getTime());
 
-        //7 falses porque el snooze no se repite según día de la semana
-        AlarmInfo t=new AlarmInfo(hourTxt+":"+minuteTxt, Integer.parseInt(hourTxt), Integer.parseInt(minuteTxt),false,false,false,false,false,false,false,typeAlarm);
-        t.setIdAlarm(currentAlarms.get(ai.getPosition()).getIdAlarm());
-        startAlarm(t);
+        startAlarm(ai2);
         WakeLocker.release();
 
 

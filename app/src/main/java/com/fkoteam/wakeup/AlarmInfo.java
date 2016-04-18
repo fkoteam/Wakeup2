@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class AlarmInfo implements Serializable {
@@ -20,6 +21,8 @@ public class AlarmInfo implements Serializable {
     //casi nunca se usa
     int position;
     int snoozed;
+    Calendar snoozingTime;
+    Integer snoozingId;
 
     //listado de alarmas. Pueden ser 7 si se repiten todos los dias
     List<Integer> idAlarm;
@@ -47,6 +50,7 @@ public class AlarmInfo implements Serializable {
         this.minuteAlarm = minuteAlarm;
         this.active=true;
         this.typeAlarm=typeAlarm;
+        this.snoozed=0;
 
         this.repeatMon=repeatMon;
                 this.repeatTue=repeatTue;
@@ -177,5 +181,27 @@ public class AlarmInfo implements Serializable {
 
     public void setSnoozed(int snoozed) {
         this.snoozed = snoozed;
+    }
+
+    public Calendar getSnoozingTime() {
+        return snoozingTime;
+    }
+
+    public void setSnoozingTime(Calendar snoozingTime) {
+        this.snoozingTime = snoozingTime;
+    }
+
+    public Integer getSnoozingId() {
+        return snoozingId;
+    }
+
+    public void setSnoozingId(Integer snoozingId) {
+        this.snoozingId = snoozingId;
+    }
+
+    public void setSnoozingId()
+    {
+        int currentTimeMillis=(int) System.currentTimeMillis( ) % Integer.MAX_VALUE;
+        snoozingId=new Integer(currentTimeMillis);
     }
 }

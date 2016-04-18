@@ -19,14 +19,16 @@ import com.google.android.gms.ads.AdView;
 import java.util.Calendar;
 
 public class AlarmFired extends AppCompatActivity {
-    int progress = 0;
+    //por defecto, 5 minutos
+    int progress = 2;
+    AdView mAdView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_fired);
-        AdView mAdView = (AdView) findViewById(R.id.adView);
+        mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
         mAdView.loadAd(adRequest);
 
@@ -34,7 +36,6 @@ public class AlarmFired extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         final int idAlarm=b.getInt("idAlarm");
-        final int typeAlarm=b.getInt("typeAlarm");
         final int isConnected=b.getInt("isConnected");
 
 
@@ -98,8 +99,8 @@ public class AlarmFired extends AppCompatActivity {
 
                 WakeLocker.release();
                 stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
-                startActivity(intent);
 
+                startActivity(intent);
                 finish();
 
 
@@ -127,7 +128,6 @@ public class AlarmFired extends AppCompatActivity {
                         MainActivity.class);
 
                 intent.putExtra("snooze", seekBarToMinutes(progress));
-                intent.putExtra("typeAlarm", typeAlarm);
                 intent.putExtra("tryDisableAlarm", idAlarm);
 
 
@@ -175,5 +175,17 @@ public class AlarmFired extends AppCompatActivity {
 
         return 5;
     }
+    @Override
+    protected void onPause() {
+        if(mAdView!=null)
+            mAdView.pause();
+        super.onPause();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mAdView!=null)
+            mAdView.resume();
+    }
 }
