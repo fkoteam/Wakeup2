@@ -37,39 +37,48 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         //Toast.makeText(context, "I'm running" + new Date().toString(), Toast.LENGTH_LONG).show();
 
 
-
+final boolean online=intent.getBooleanExtra("online",false);
 
         Thread t = new Thread() {
             @Override
             public void run() {
                 try {
-                    //check if connected!
-                    int waitRetries=0;
-                    boolean isConnected=isConnected(context);
-                    //esperamos 10 veces 2 segundo
-                    while (!isConnected && waitRetries<10) {
-                        //Wait to connect
-                        Thread.sleep(2000);
-                        waitRetries++;
-                        isConnected=isConnected(context);
+                    boolean isConnected = false;
+
+                    if(online) {
+                        //check if connected!
+                        int waitRetries = 0;
+                        isConnected = isConnected(context);
+                        //esperamos 10 veces 2 segundo
+                        while (!isConnected && waitRetries < 10) {
+                            //Wait to connect
+                            Thread.sleep(2000);
+                            waitRetries++;
+                            isConnected = isConnected(context);
+                        }
                     }
 
                     try {
 
-
                         context.stopService(new Intent(context, MediaPlayerService.class));
 
                         Intent serviceIntent = new Intent(context,MediaPlayerService.class);
+                        serviceIntent.putExtra("idAlarm", intent.getIntExtra("idAlarm", -1));
+                        serviceIntent.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
+                        serviceIntent.putExtra("isConnected",isConnected?1:0);
+                        serviceIntent.putExtra("online",online);
+                        serviceIntent.putExtra("vibration", intent.getBooleanExtra("vibration", false));
+
                         context.startService(serviceIntent);
 
 
                         Intent intent2=new Intent(context, AlarmFired.class);
 
-                        //le pasamos el id de la alarma a AlarmFired
-                        int idAlarm = intent.getIntExtra("idAlarm", -1);
-                        intent2.putExtra("idAlarm", idAlarm);
+                        intent2.putExtra("idAlarm", intent.getIntExtra("idAlarm", -1));
                         intent2.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
                         intent2.putExtra("isConnected",isConnected?1:0);
+                        intent2.putExtra("online",online);
+                        intent2.putExtra("vibration",intent.getBooleanExtra("vibration",false));
 
 
 

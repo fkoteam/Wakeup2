@@ -34,6 +34,8 @@
     <string name="confirm_delete">Delete alarm at</string>
     <string name="empty">Press the bottom button to add an alarm</string>
     <string name="connectionProblems">Due to connection problems, a default sound will be played</string>
+    <string name="textInternet">Online Media</string>
+    <string name="textVibrate">Vibration</string>
 
 
 </resources>

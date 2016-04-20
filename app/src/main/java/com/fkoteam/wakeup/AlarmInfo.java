@@ -18,6 +18,8 @@ public class AlarmInfo implements Serializable {
     int hourAlarm;
     int minuteAlarm;
     boolean active;
+    boolean online=false;
+    boolean vibration=false;
     //casi nunca se usa
     int position;
     int snoozed;
@@ -44,7 +46,7 @@ public class AlarmInfo implements Serializable {
             boolean repeatThu,
             boolean repeatFri,
             boolean repeatSat,
-            boolean repeatSun,int typeAlarm) {
+            boolean repeatSun,int typeAlarm, boolean online,boolean vibration) {
         this.txtTimeAlarm = txtTimeAlarm;
         this.hourAlarm = hourAlarm;
         this.minuteAlarm = minuteAlarm;
@@ -59,6 +61,8 @@ public class AlarmInfo implements Serializable {
                 this.repeatFri=repeatFri;
                 this.repeatSat=repeatSat;
                 this.repeatSun=repeatSun;
+        this.vibration=vibration;
+        this.online=online;
     }
 
     public String getTxtTimeAlarm() {
@@ -203,5 +207,21 @@ public class AlarmInfo implements Serializable {
     {
         int currentTimeMillis=(int) System.currentTimeMillis( ) % Integer.MAX_VALUE;
         snoozingId=new Integer(currentTimeMillis);
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
+    public boolean isVibration() {
+        return vibration;
+    }
+
+    public void setVibration(boolean vibration) {
+        this.vibration = vibration;
     }
 }

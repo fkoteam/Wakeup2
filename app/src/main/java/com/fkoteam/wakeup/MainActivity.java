@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
@@ -31,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         initAlarmPrefs();
+        //Utils.initAlarmPrefs(sharedPref,getApplicationContext(),getString(R.string.preference_alarms_file),currentAlarms);
 
 
 
@@ -85,13 +88,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             if(ai!=null) {
 
-                unSnoozeAlarm(ai);
+                unSnoozeAlarm(ai, -1);
 
                 if(snooze>0)
                     snoozeAlarm(snooze, ai);
-
-
-                tryDisableAlarm(ai, idAlarm);
+                else
+                    tryDisableAlarm(ai, idAlarm);
 
 
             }
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 final TextView txtTime = (TextView) popupView.findViewById(R.id.txtTime);
                 txtTime.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        popUpHora( popupView, popupWindow,txtTime.getText()+"");
+                        popUpHora(popupView, popupWindow, txtTime.getText() + "");
                     }
                 });
 
@@ -129,6 +131,41 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
 
+                SeekBar seekTypeAlarm = (SeekBar) popupView.findViewById(R.id.seekBar);
+                seekTypeAlarm.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+                        int progress = progresValue;
+                        if(progress==0)
+                        {
+                            TextView txtClassical = (TextView) popupView.findViewById(R.id.txtClassical);
+                            TextView txtNatural = (TextView) popupView.findViewById(R.id.txtNatural);
+                            txtClassical.setTextColor(Color.parseColor("#000000"));
+                            txtNatural.setTextColor(Color.parseColor("#909090"));
+
+                        }
+                        else
+                        {
+                            TextView txtClassical = (TextView) popupView.findViewById(R.id.txtClassical);
+                            TextView txtNatural = (TextView) popupView.findViewById(R.id.txtNatural);
+                            txtClassical.setTextColor(Color.parseColor("#909090"));
+                            txtNatural.setTextColor(Color.parseColor("#000000"));
+                        }
+
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        
+
+                    }
+                });
                 final Button btnAcceptPopup = (Button) popupView.findViewById(R.id.accept);
                 btnAcceptPopup.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -143,7 +180,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                             SeekBar seekBar = (SeekBar) popupView.findViewById(R.id.seekBar);
 
-                            AlarmInfo ai = new AlarmInfo(txtTime.getText()+"", hourInt, minuteInt,((CheckBox)popupView.findViewById(R.id.checkMon)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkTue)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkWed)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkThu)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkFri)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkSat)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkSun)).isChecked(),seekBar.getProgress());
+                            boolean internet;
+                            boolean vibration;
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                                internet=((Switch)popupView.findViewById(R.id.switchInternet)).isChecked();
+                                        vibration=((Switch)popupView.findViewById(R.id.switchVibrate)).isChecked();
+                            } else {
+                                internet=((CheckBox)popupView.findViewById(R.id.switchInternet)).isChecked();
+                                vibration=((CheckBox)popupView.findViewById(R.id.switchVibrate)).isChecked();
+                            }
+                            AlarmInfo ai = new AlarmInfo(txtTime.getText()+"", hourInt, minuteInt,((CheckBox)popupView.findViewById(R.id.checkMon)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkTue)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkWed)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkThu)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkFri)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkSat)).isChecked(),((CheckBox)popupView.findViewById(R.id.checkSun)).isChecked(),seekBar.getProgress(),internet,vibration);
                             //el id de la alarma es la fecha actual en milis
                             ai.setIdAlarm();
                             addAlarm(ai);
@@ -214,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                                             @Override
                                                             public void onClick(DialogInterface dialog, int which) {
-                                                                deleteAlarm(position, true);
+                                                                deleteAlarm(position, true, true);
                                                             }
                                                         })
                                                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -237,24 +283,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private void stopAlarm( int idAlarm) {
+    private void stopAlarm(int idAlarm) {
 
 
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
 
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.setAction(String.valueOf(idAlarm));
-
-
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,idAlarm, alarmIntent, 0);
+        alarmIntent.setAction(String.valueOf(idAlarm));
 
 
-
-                manager.cancel(pendingIntent);
-                    pendingIntent.cancel();
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, idAlarm, alarmIntent, 0);
 
 
+        manager.cancel(pendingIntent);
+        pendingIntent.cancel();
 
 
     }
@@ -297,14 +340,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return super.onOptionsItemSelected(item);
     }
 
-    private void unSnoozeAlarm(AlarmInfo ai) {
+    private void unSnoozeAlarm(AlarmInfo ai,int position) {
         if(ai.getSnoozingId()!=null)
             stopAlarm(ai.getSnoozingId().intValue());
-        AlarmInfo ai2=currentAlarms.get(ai.getPosition());
+        int pos=0;
+        if(position>-1)
+            pos=position;
+        else
+            pos=ai.getPosition();
+        AlarmInfo ai2=currentAlarms.get(pos);
         ai2.setSnoozed(0);
         ai2.setSnoozingTime(null);
         ai2.setSnoozingId(null);
-        currentAlarms.set(ai.getPosition(), ai2);
+        currentAlarms.set(pos, ai2);
         saveData();
 
     }
@@ -347,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     AlarmInfo ai2=currentAlarms.get(ai.getPosition());
                     ai2.setActive(false);
                     currentAlarms.set(ai.getPosition(),ai2);
-                    deleteAlarm(ai.getPosition(),false);
+                    deleteAlarm(ai.getPosition(),false,false);
 
 
                         saveData();
@@ -407,203 +455,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-
-
-    /*public void cancelAlarm() {
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        manager.cancel(pendingIntent);
-        Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
-    }*/
-
-    public void startAlarm(AlarmInfo t) {
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-
-    if(t.getSnoozingTime()!=null && t.getSnoozingId()!=null)
-    {
-        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-        alarmIntent.putExtra("idAlarm", t.getSnoozingId().intValue());
-        alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-        alarmIntent.setAction(String.valueOf(t.getSnoozingId().intValue()));
-
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getSnoozingId().intValue(), alarmIntent, 0);
-
-        manager.set(AlarmManager.RTC_WAKEUP,
-                t.getSnoozingTime().getTimeInMillis(), pendingIntent);
-    }
-        else {
-
-
-    if (t.anyRepeat()) {
-        int i = 0;
-        if (t.repeatMon) {
-                /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-            i++;
-
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    setCalendarAlarm(2, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
-
-        }
-        if (t.repeatTue) {
-                /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-            i++;
-
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    setCalendarAlarm(3, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
-        }
-        if (t.repeatWed) {
-                /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-            i++;
-
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    setCalendarAlarm(4, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
-        }
-        if (t.repeatThu) {
-                /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
-
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-            i++;
-
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    setCalendarAlarm(5, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
-        }
-        if (t.repeatFri) {
-                /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-            i++;
-
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    setCalendarAlarm(6, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
-        }
-        if (t.repeatSat) {
-                /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-            i++;
-
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    setCalendarAlarm(7, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
-        }
-        if (t.repeatSun) {
-                /* Retrieve a PendingIntent that will perform a broadcast */
-            Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(i).intValue());
-            alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-
-            alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(i).intValue()));
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(i).intValue(), alarmIntent, 0);//PendingIntent.FLAG_UPDATE_CURRENT);
-            i++;
-
-            manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                    setCalendarAlarm(1, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
-        }
-
-    } else {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, t.getHourAlarm());
-        calendar.set(Calendar.MINUTE, t.getMinuteAlarm());
-
-        int diff = (int) (Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis());
-        if (diff > 0)
-            calendar.add(Calendar.DATE, 1);
-
-
-        calendar.set(Calendar.SECOND, 0);
-
-
-            /* Retrieve a PendingIntent that will perform a broadcast */
-        Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-        alarmIntent.putExtra("idAlarm", t.getIdAlarm().get(0).intValue());
-        alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
-        alarmIntent.setAction(String.valueOf(t.getIdAlarm().get(0).intValue()));
-
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, t.getIdAlarm().get(0).intValue(), alarmIntent, 0);
-
-
-        manager.set(AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(), pendingIntent);
-
-
-    }
-}
-
-    }
-
-    private Calendar setCalendarAlarm(int myAlarmDayOfTheWeek,int myAlarmHour,int myAlarmMinute) {
-        Calendar timestamp = Calendar.getInstance();
-
-
-//Check whether the day of the week was earlier in the week:
-        if( myAlarmDayOfTheWeek > timestamp.get(Calendar.DAY_OF_WEEK) ) {
-            //Set the day of the AlarmManager:
-            timestamp.add(Calendar.DAY_OF_YEAR, (myAlarmDayOfTheWeek - timestamp.get(Calendar.DAY_OF_WEEK)));
-        }
-        else {
-            if( myAlarmDayOfTheWeek < timestamp.get(Calendar.DAY_OF_WEEK) ) {
-                //Set the day of the AlarmManager:
-                timestamp.add(Calendar.DAY_OF_YEAR, (7 - (timestamp.get(Calendar.DAY_OF_WEEK) - myAlarmDayOfTheWeek)));
-            }
-            else {  // myAlarmDayOfTheWeek == time.get(Calendar.DAY_OF_WEEK)
-                //Check whether the time has already gone:
-                if ( (myAlarmHour < timestamp.get(Calendar.HOUR_OF_DAY)) || ((myAlarmHour == timestamp.get(Calendar.HOUR_OF_DAY)) && (myAlarmMinute < timestamp.get(Calendar.MINUTE))) ) {
-                    //Set the day of the AlarmManager:
-                    timestamp.add(Calendar.DAY_OF_YEAR, 7);
-                }
-            }
-        }
-
-//Set the time of the AlarmManager:
-        timestamp.set(Calendar.HOUR_OF_DAY, myAlarmHour);
-        timestamp.set(Calendar.MINUTE, myAlarmMinute);
-        timestamp.set(Calendar.SECOND, 0);
-        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Log.i("ALARM"+myAlarmDayOfTheWeek,format1.format(timestamp.getTime()));
-        return timestamp;
-    }
-
-
     @Override
     public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
         if(currentAlarms.get(position).isActive()) {
@@ -613,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             saveData();
 
 
-            deleteAlarm(position,false);
+            deleteAlarm(position,false,true);
 
 
 
@@ -636,7 +487,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             saveData();
 
 
-            startAlarm(currentAlarms.get(position));
+            Utils.startAlarm(currentAlarms.get(position),this);
 
             Toast.makeText(this, getString(R.string.alarm_enabled), Toast.LENGTH_SHORT).show();
 
@@ -755,7 +606,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             currentAlarms = new ArrayList<AlarmInfo>();
         }
 
-        startAlarm(t);
+        Utils.startAlarm(t,this);
         currentAlarms.add(t);
 
         saveData();
@@ -764,26 +615,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private void deleteAlarm(int position,boolean deleteFromList) {
+    private void deleteAlarm(int position,boolean deleteFromList,boolean deleteSnooze) {
 
+        if(deleteSnooze)
+            unSnoozeAlarm(currentAlarms.get(position), position);
 
             for (Integer idAlarm : currentAlarms.get(position).getIdAlarm()) {
-
-                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-                Intent alarmIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-                alarmIntent.setAction(String.valueOf(idAlarm));
-
-
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,idAlarm, alarmIntent, 0);
-
-
-
-                manager.cancel(pendingIntent);
-                pendingIntent.cancel();
-
-                    manager.cancel(pendingIntent);
-                    pendingIntent.cancel();
+                stopAlarm(idAlarm.intValue());
 
         }
 
@@ -792,8 +630,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             currentAlarms.remove(position);
 
             saveData();
-            listAdapter.notifyDataSetChanged();
         }
+
+        listAdapter.notifyDataSetChanged();
+
 
 
 
@@ -822,6 +662,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         try {
             currentAlarms = (ArrayList<AlarmInfo>) ObjectSerializer.deserialize(sharedPref.getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>())));
+            int pos=0;
+            for(AlarmInfo ai : currentAlarms)
+            {
+                if(ai.active)
+                {
+                    unSnoozeAlarm(ai,pos);
+                    Utils.startAlarm(ai,this);
+                }
+                pos++;
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -849,7 +700,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-        startAlarm(ai2);
+        Utils.startAlarm(ai2,this);
         WakeLocker.release();
 
 

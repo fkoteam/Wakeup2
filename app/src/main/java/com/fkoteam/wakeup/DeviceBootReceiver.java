@@ -4,7 +4,13 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Nilanchala
@@ -16,17 +22,29 @@ public class DeviceBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            /* Setting the alarm here */
-            //todo
-            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+        Log.i("bootcompleated","entroooo");
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                context.getString(R.string.preference_alarms_file), Context.MODE_PRIVATE);
+        List<AlarmInfo> currentAlarms = new ArrayList<AlarmInfo>();
 
-            AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            int interval = 8000;
-            manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        //      load tasks from preference
 
-            Toast.makeText(context, "Alarm Set", Toast.LENGTH_SHORT).show();
+        try {
+            currentAlarms = (ArrayList<AlarmInfo>) ObjectSerializer.deserialize(sharedPref.getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>())));
+            for(AlarmInfo ai : currentAlarms)
+            {
+                if(ai.active)
+                {
+                    ai.setSnoozingId(null);
+                    ai.setSnoozingTime(null);
+                    Utils.startAlarm(ai, context);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+
     }
 }

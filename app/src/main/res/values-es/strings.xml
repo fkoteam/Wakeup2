@@ -34,4 +34,6 @@
     <string name="wednesday">Mié</string>
     <string name="wrong_hour">Hora incorrecta</string>
     <string name="connectionProblems">Por problemas de conexión, se reproducirá el sonido por defecto</string>
+    <string name="textInternet">Audio Online</string>
+    <string name="textVibrate">Vibración</string>
 </resources>

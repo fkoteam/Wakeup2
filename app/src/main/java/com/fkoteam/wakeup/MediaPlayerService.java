@@ -35,6 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class MediaPlayerService extends Service {
 
     private MediaPlayer mp = null;
+    MyTaskParams myTaskParams;
 
 
     // Vibrate the mobile phone
@@ -59,7 +60,6 @@ public class MediaPlayerService extends Service {
 
     @Override
     public void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
         if (mp != null) {
 
@@ -74,15 +74,12 @@ public class MediaPlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO Auto-generated method stub
         super.onStartCommand(intent, flags, startId);
 
 
+        myTaskParams=new MyTaskParams(intent.getIntExtra("typeAlarm",0),intent.getIntExtra("isConnected",0),intent.getBooleanExtra("online", false),intent.getBooleanExtra("vibration",false));
         new Player()
-                .execute(new Integer(intent.getIntExtra("typeAlarm",0)));
-
-        //mp.setLooping(true);
-        //mp.start();
+                .execute();
 
 
 
@@ -91,95 +88,134 @@ public class MediaPlayerService extends Service {
     }
 
 
+
+    private static class MyTaskParams {
+        private int typeAlarm;
+        private int isConnected;
+        private boolean online;
+        private boolean vibration;
+
+        MyTaskParams(int typeAlarm, int isConnected,boolean online, boolean vibration) {
+            this.typeAlarm = typeAlarm;
+            this.isConnected=isConnected;
+            this.online = online;
+            this.vibration = vibration;
+        }
+
+        public int getTypeAlarm() {
+            return typeAlarm;
+        }
+
+
+
+        public int getIsConnected() {
+            return isConnected;
+        }
+
+        public boolean isOnline() {
+            return online;
+        }
+
+        public boolean isVibration() {
+            return vibration;
+        }
+
+    }
+
     /**
      * preparing mediaplayer will take sometime to buffer the content so prepare it inside the background thread and starting it on UI thread.
      *
      * @author piyush
      */
 
-    class Player extends AsyncTask<Integer, Void, Boolean> {
+    class Player extends AsyncTask<Void, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Integer... params) {
-            // TODO Auto-generated method stub
-            Boolean prepared;
-            try {
-                if (mp == null) {
-                    mp=new MediaPlayer();
-                    mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mp.setVolume(100*.01f,100*.01f);
+        protected Boolean doInBackground(Void... params) {
+            boolean prepared=false;
+//solo vamos a internet si el movil está conectado y el usuario quiere
+            if(myTaskParams.getIsConnected()==1 && myTaskParams.isOnline()) {
+
+                try {
+                    if (mp == null) {
+                        mp = new MediaPlayer();
+                        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                        mp.setVolume(100 * .01f, 100 * .01f);
+                    }
+
+
+                    //para musica clasica iria a buscar 00
+                    //para naturaleza, 01
+                    String contMusic = connect("http://fkoteam.github.io/0" + String.valueOf(myTaskParams.getTypeAlarm()));
+
+
+                    int numMusic = Integer.parseInt(contMusic);
+                    int randomNum = new Random().nextInt(numMusic) + 1;
+
+
+                    String urlMusic = connect("http://fkoteam.github.io/" + String.valueOf(randomNum) + String.valueOf(myTaskParams.getTypeAlarm()));
+
+                    if (urlMusic == null || urlMusic.length() < 1)
+                        throw new Exception();
+
+                    mp.setDataSource(urlMusic);
+
+                    mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        public void onPrepared(MediaPlayer mp) {
+
+                            mp.start();
+                            if(myTaskParams.isVibration())
+                                vibrate();
+                        }
+                    });
+
+
+                    mp.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+
+                        @Override
+                        public boolean onError(MediaPlayer mp, int what, int extra) {
+                            alarmOffline();
+                            return false;
+                        }
+                    });
+
+
+                    mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+
+                            mp.stop();
+                            mp.reset();
+                        }
+                    });
+                    mp.prepareAsync();
+                    prepared = true;
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    Log.d("IllegarArgument", e.getMessage());
+                    prepared = false;
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    // TODO Auto-generated catch block
+                    prepared = false;
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    // TODO Auto-generated catch block
+                    prepared = false;
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    prepared = false;
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    prepared = false;
+                    e.printStackTrace();
                 }
-
-
-                //para musica clasica iria a buscar 00
-                //para naturaleza, 01
-                String contMusic=connect("http://fkoteam.github.io/0"+String.valueOf(params[0].intValue()));
-
-
-
-
-                int numMusic=Integer.parseInt(contMusic);
-                int randomNum = new Random().nextInt(numMusic) + 1;
-
-
-                String urlMusic=connect("http://fkoteam.github.io/"+String.valueOf(randomNum)+String.valueOf(params[0].intValue()));
-
-                if(urlMusic==null || urlMusic.length()<1)
-                    throw new Exception();
-
-                mp.setDataSource(urlMusic);
-
-                mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    public void onPrepared(MediaPlayer mp) {
-
-                        mp.start();
-                        vibrate();
-                    }
-                });
-
-                mp.setOnErrorListener(new MediaPlayer.OnErrorListener(){
-
-                                          @Override
-                                          public boolean onError(MediaPlayer mp, int what, int extra) {
-                                              alarmError();
-                                              return false;
-                                          }
-                                      });
-
-
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-
-                        mp.stop();
-                        mp.reset();
-                    }
-                });
-                mp.prepareAsync();
-                prepared = true;
-            } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                Log.d("IllegarArgument", e.getMessage());
-                prepared = false;
-                e.printStackTrace();
-            } catch (SecurityException e) {
-                // TODO Auto-generated catch block
-                prepared = false;
-                e.printStackTrace();
-            } catch (IllegalStateException e) {
-                // TODO Auto-generated catch block
-                prepared = false;
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                prepared = false;
-                e.printStackTrace();
-            } catch (Exception e) {
-                prepared = false;
-                e.printStackTrace();
             }
-            return prepared;
+
+                return prepared;
+
         }
 
         private String connect(String url) throws MalformedURLException, IOException{
@@ -214,14 +250,14 @@ public class MediaPlayerService extends Service {
             Log.d("Prepared", "//" + prepared);
             if(!prepared)
             {
-                alarmError();
+                alarmOffline();
             }
 
 
 
         }
 
-        private void alarmError() {
+        private void alarmOffline() {
             try{
                 if(mp!=null)
                 {
@@ -235,7 +271,10 @@ public class MediaPlayerService extends Service {
             finally {
                 mp=null;
 
-                    mp = MediaPlayer.create(getApplicationContext(), R.raw.ring);
+                //tenemos 2 musicas clasicas y 2 sonidos naturales. hacemos random
+                int numMusic = 2;
+                int randomNum = new Random().nextInt(numMusic) + 1;
+                    mp = MediaPlayer.create(getApplicationContext(), getResources().getIdentifier("a"+String.valueOf(randomNum)+String.valueOf(myTaskParams.getTypeAlarm()),"raw",getPackageName()));
                     mp.setLooping(true);
 
 
@@ -243,7 +282,8 @@ public class MediaPlayerService extends Service {
             if(!ringing)
             {
                 mp.start();
-                vibrate();
+                if(myTaskParams.isVibration())
+                    vibrate();
                 ringing=true;
             }
 

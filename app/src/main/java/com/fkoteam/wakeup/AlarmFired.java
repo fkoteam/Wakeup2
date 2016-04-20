@@ -4,6 +4,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,11 +19,14 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AlarmFired extends AppCompatActivity {
     //por defecto, 5 minutos
     int progress = 2;
     AdView mAdView;
+    Button btnSnoozePopup;
 
 
     @Override
@@ -34,12 +39,21 @@ public class AlarmFired extends AppCompatActivity {
 
 
 
+
+        Timer timer = new Timer("timer",true);
+        btnSnoozePopup = (Button) findViewById(R.id.snooze);
+        //si no se para en 2 minutos, autosnooze
+        timer.schedule(new autoSnooze(), 2*60*1000);
+
+
+
         Bundle b = getIntent().getExtras();
         final int idAlarm=b.getInt("idAlarm");
         final int isConnected=b.getInt("isConnected");
+        final boolean online=b.getBoolean("online");
 
-
-        if(isConnected==0)
+        //el movil no está online y el usuario queria alarma online
+        if(isConnected==0 && online)
         {
             TextView connectionProblems = (TextView) findViewById(R.id.connectionProblems);
             connectionProblems.setText(getString(R.string.connectionProblems));
@@ -63,11 +77,11 @@ public class AlarmFired extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
-                String s="";
-                if(seekBarToMinutes(progress)>1)
-                    s= getString(R.string.plural);
+                String s = "";
+                if (seekBarToMinutes(progress) > 1)
+                    s = getString(R.string.plural);
 
-                textView.setText(seekBarToMinutes(progress) + " "+getString(R.string.minute)+s);
+                textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
 
             }
         });
@@ -78,17 +92,7 @@ public class AlarmFired extends AppCompatActivity {
         Button btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
         btnCancelPopup.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                /*Intent myIntent = new Intent(getBaseContext(),
-                        AlarmReceiver.class);
 
-                PendingIntent pendingIntent
-                        = PendingIntent.getBroadcast(getBaseContext(),
-                        idAlarm, myIntent, 0);
-
-                AlarmManager alarmManager
-                        = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-                alarmManager.cancel(pendingIntent);*/
 
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
@@ -108,20 +112,9 @@ public class AlarmFired extends AppCompatActivity {
             }
         });
 
-        Button btnSnoozePopup = (Button) findViewById(R.id.snooze);
         btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-               /* Intent myIntent = new Intent(getBaseContext(),
-                        AlarmReceiver.class);
 
-                PendingIntent pendingIntent
-                        = PendingIntent.getBroadcast(getBaseContext(),
-                        idAlarm, myIntent, 0);
-
-                AlarmManager alarmManager
-                        = (AlarmManager)getSystemService(ALARM_SERVICE);
-
-                alarmManager.cancel(pendingIntent);*/
 
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
@@ -187,5 +180,22 @@ public class AlarmFired extends AppCompatActivity {
         super.onResume();
         if(mAdView!=null)
             mAdView.resume();
+    }
+
+
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg){
+            btnSnoozePopup.performClick();
+        }
+    };
+
+    //Task for timer to execute when time expires
+    class autoSnooze extends TimerTask {
+        @Override
+        public void run(){
+            handler.sendEmptyMessage(0);
+        }
     }
 }
