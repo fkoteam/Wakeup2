@@ -22,7 +22,6 @@ public class DeviceBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("bootcompleated","entroooo");
         SharedPreferences sharedPref = context.getSharedPreferences(
                 context.getString(R.string.preference_alarms_file), Context.MODE_PRIVATE);
         List<AlarmInfo> currentAlarms = new ArrayList<AlarmInfo>();

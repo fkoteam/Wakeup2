@@ -652,10 +652,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void initAlarmPrefs()
     {
+        boolean firstTime = false;
         sharedPref = getApplicationContext().getSharedPreferences(
                 getString(R.string.preference_alarms_file), Context.MODE_PRIVATE);
         if (null == currentAlarms) {
             currentAlarms = new ArrayList<AlarmInfo>();
+            firstTime=true;
         }
 
         //      load tasks from preference
@@ -663,14 +665,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         try {
             currentAlarms = (ArrayList<AlarmInfo>) ObjectSerializer.deserialize(sharedPref.getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>())));
             int pos=0;
-            for(AlarmInfo ai : currentAlarms)
-            {
-                if(ai.active)
-                {
-                    unSnoozeAlarm(ai,pos);
-                    Utils.startAlarm(ai,this);
+            if(firstTime) {
+                for (AlarmInfo ai : currentAlarms) {
+                    if (ai.active) {
+                        unSnoozeAlarm(ai, pos);
+                        Utils.startAlarm(ai, this);
+                    }
+                    pos++;
                 }
-                pos++;
             }
 
         } catch (IOException e) {

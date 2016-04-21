@@ -45,13 +45,11 @@ public class MediaPlayerService extends Service {
 
     @Override
     public IBinder onBind(Intent arg0) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void onCreate() {
-        // TODO Auto-generated method stub
         super.onCreate();
 
 
@@ -192,20 +190,16 @@ public class MediaPlayerService extends Service {
                     mp.prepareAsync();
                     prepared = true;
                 } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
                     Log.d("IllegarArgument", e.getMessage());
                     prepared = false;
                     e.printStackTrace();
                 } catch (SecurityException e) {
-                    // TODO Auto-generated catch block
                     prepared = false;
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
-                    // TODO Auto-generated catch block
                     prepared = false;
                     e.printStackTrace();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     prepared = false;
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -244,7 +238,6 @@ public class MediaPlayerService extends Service {
 
         @Override
         protected void onPostExecute(Boolean prepared) {
-            // TODO Auto-generated method stub
             super.onPostExecute(prepared);
 
             Log.d("Prepared", "//" + prepared);
@@ -274,8 +267,11 @@ public class MediaPlayerService extends Service {
                 //tenemos 2 musicas clasicas y 2 sonidos naturales. hacemos random
                 int numMusic = 2;
                 int randomNum = new Random().nextInt(numMusic) + 1;
-                    mp = MediaPlayer.create(getApplicationContext(), getResources().getIdentifier("a"+String.valueOf(randomNum)+String.valueOf(myTaskParams.getTypeAlarm()),"raw",getPackageName()));
-                    mp.setLooping(true);
+                mp = MediaPlayer.create(getApplicationContext(), getResources().getIdentifier("a"+String.valueOf(randomNum)+String.valueOf(myTaskParams.getTypeAlarm()),"raw",getPackageName()));
+                //todo
+                //mp.setVolume(100 * .01f, 100 * .01f);
+
+                mp.setLooping(true);
 
 
             }

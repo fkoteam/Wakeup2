@@ -40,10 +40,11 @@ public class AlarmFired extends AppCompatActivity {
 
 
 
-        Timer timer = new Timer("timer",true);
+        final Timer timer = new Timer("timer",true);
         btnSnoozePopup = (Button) findViewById(R.id.snooze);
         //si no se para en 2 minutos, autosnooze
-        timer.schedule(new autoSnooze(), 2*60*1000);
+        timer.schedule(new autoSnooze(), 2 * 60 * 1000);
+
 
 
 
@@ -93,6 +94,8 @@ public class AlarmFired extends AppCompatActivity {
         btnCancelPopup.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
+                //ya no hace falta el autosnooze
+                timer.cancel();
 
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
@@ -105,7 +108,7 @@ public class AlarmFired extends AppCompatActivity {
                 stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
 
                 startActivity(intent);
-                finish();
+                //finish();
 
 
 
@@ -115,6 +118,8 @@ public class AlarmFired extends AppCompatActivity {
         btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
+                //ya no hace falta el autosnooze
+                timer.cancel();
 
                 Intent intent = new Intent();
                 intent.setClass(AlarmFired.this,
@@ -128,7 +133,7 @@ public class AlarmFired extends AppCompatActivity {
                 stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
 
                 startActivity(intent);
-                finish();
+                //finish();
 
 
 

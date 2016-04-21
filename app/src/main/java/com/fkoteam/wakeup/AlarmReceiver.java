@@ -31,10 +31,6 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
         WakeLocker.acquire(context);
 
-        // For our recurring task, we'll just display a message
-        /**/
-        //todo
-        //Toast.makeText(context, "I'm running" + new Date().toString(), Toast.LENGTH_LONG).show();
 
 
 final boolean online=intent.getBooleanExtra("online",false);
@@ -64,6 +60,8 @@ final boolean online=intent.getBooleanExtra("online",false);
 
                         Intent serviceIntent = new Intent(context,MediaPlayerService.class);
                         serviceIntent.putExtra("idAlarm", intent.getIntExtra("idAlarm", -1));
+                        if(intent.getIntExtra("idAlarm", -1)==-1)
+                            Log.i("ERROR","error");
                         serviceIntent.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
                         serviceIntent.putExtra("isConnected",isConnected?1:0);
                         serviceIntent.putExtra("online",online);
@@ -97,14 +95,6 @@ final boolean online=intent.getBooleanExtra("online",false);
             }
         };
         t.start();
-
-
-
-
-
-        /*Por si quieres notificacion
-        Intent service1 = new Intent(context, MyAlarmService.class);
-        context.startService(service1);*/
 
 
 
