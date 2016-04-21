@@ -28,7 +28,7 @@ public class DeviceBootReceiver extends BroadcastReceiver {
 
         //      load tasks from preference
 
-        try {
+        try{
             currentAlarms = (ArrayList<AlarmInfo>) ObjectSerializer.deserialize(sharedPref.getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>())));
             for(AlarmInfo ai : currentAlarms)
             {
