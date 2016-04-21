@@ -268,8 +268,7 @@ public class MediaPlayerService extends Service {
                 int numMusic = 2;
                 int randomNum = new Random().nextInt(numMusic) + 1;
                 mp = MediaPlayer.create(getApplicationContext(), getResources().getIdentifier("a"+String.valueOf(randomNum)+String.valueOf(myTaskParams.getTypeAlarm()),"raw",getPackageName()));
-                //todo
-                //mp.setVolume(100 * .01f, 100 * .01f);
+                mp.setVolume(100 * .01f, 100 * .01f);
 
                 mp.setLooping(true);
 

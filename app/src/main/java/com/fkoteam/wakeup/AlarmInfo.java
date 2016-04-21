@@ -65,6 +65,31 @@ public class AlarmInfo implements Serializable {
         this.online=online;
     }
 
+    public void modifyValues(String txtTimeAlarm, int hourAlarm, int minuteAlarm,boolean repeatMon,
+                     boolean repeatTue,
+                     boolean repeatWed,
+                     boolean repeatThu,
+                     boolean repeatFri,
+                     boolean repeatSat,
+                     boolean repeatSun,int typeAlarm, boolean online,boolean vibration) {
+        this.txtTimeAlarm = txtTimeAlarm;
+        this.hourAlarm = hourAlarm;
+        this.minuteAlarm = minuteAlarm;
+        this.active=true;
+        this.typeAlarm=typeAlarm;
+        this.snoozed=0;
+
+        this.repeatMon=repeatMon;
+        this.repeatTue=repeatTue;
+        this.repeatWed=repeatWed;
+        this.repeatThu=repeatThu;
+        this.repeatFri=repeatFri;
+        this.repeatSat=repeatSat;
+        this.repeatSun=repeatSun;
+        this.vibration=vibration;
+        this.online=online;
+    }
+
     public String getTxtTimeAlarm() {
         return txtTimeAlarm;
     }

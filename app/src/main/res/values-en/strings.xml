@@ -36,6 +36,7 @@
     <string name="connectionProblems">Due to connection problems, a default sound will be played</string>
     <string name="textInternet">Online Media</string>
     <string name="textVibrate">Vibration</string>
+    <string name="modifyAlarm">Change Alarm</string>
 
 
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about_mess1">Todos los contenidos están alojados en Archive.org.\nDona para apoyar a esta ONG</string>
+    <string name="about_mess1">Todos los contenidos están\nalojados en Archive.org.\nDona para apoyar a esta ONG</string>
     <string name="accept">Aceptar</string>
     <string name="action_about">Acerca</string>
     <string name="add_alarm">Añadir una alarma</string>
@@ -36,4 +36,5 @@
     <string name="connectionProblems">Por problemas de conexión, se reproducirá el sonido por defecto</string>
     <string name="textInternet">Audio Online</string>
     <string name="textVibrate">Vibración</string>
+    <string name="modifyAlarm">Modificar Alarma</string>
 </resources>
