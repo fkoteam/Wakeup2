@@ -13,6 +13,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
@@ -36,11 +37,13 @@ public class MediaPlayerService extends Service {
 
     private MediaPlayer mp = null;
     MyTaskParams myTaskParams;
+    AudioManager mAudioManager;
+    int userVolume;
 
 
     // Vibrate the mobile phone
     Vibrator vibrator = null;
-    boolean ringing=false;
+    boolean ringing = false;
 
 
     @Override
@@ -60,6 +63,7 @@ public class MediaPlayerService extends Service {
     public void onDestroy() {
         super.onDestroy();
         if (mp != null) {
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
 
             mp.stop();
             mp.release();
@@ -72,19 +76,18 @@ public class MediaPlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mAudioManager = (AudioManager) getApplicationContext().getSystemService(getApplicationContext().AUDIO_SERVICE);
+        userVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         super.onStartCommand(intent, flags, startId);
 
 
-        myTaskParams=new MyTaskParams(intent.getIntExtra("typeAlarm",0),intent.getIntExtra("isConnected",0),intent.getBooleanExtra("online", false),intent.getBooleanExtra("vibration",false));
+        myTaskParams = new MyTaskParams(intent.getIntExtra("typeAlarm", 0), intent.getIntExtra("isConnected", 0), intent.getBooleanExtra("online", false), intent.getBooleanExtra("vibration", false));
         new Player()
                 .execute();
 
 
-
-
         return START_STICKY;
     }
-
 
 
     private static class MyTaskParams {
@@ -93,9 +96,9 @@ public class MediaPlayerService extends Service {
         private boolean online;
         private boolean vibration;
 
-        MyTaskParams(int typeAlarm, int isConnected,boolean online, boolean vibration) {
+        MyTaskParams(int typeAlarm, int isConnected, boolean online, boolean vibration) {
             this.typeAlarm = typeAlarm;
-            this.isConnected=isConnected;
+            this.isConnected = isConnected;
             this.online = online;
             this.vibration = vibration;
         }
@@ -103,7 +106,6 @@ public class MediaPlayerService extends Service {
         public int getTypeAlarm() {
             return typeAlarm;
         }
-
 
 
         public int getIsConnected() {
@@ -130,9 +132,9 @@ public class MediaPlayerService extends Service {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            boolean prepared=false;
+            boolean prepared = false;
 //solo vamos a internet si el movil está conectado y el usuario quiere
-            if(myTaskParams.getIsConnected()==1 && myTaskParams.isOnline()) {
+            if (myTaskParams.getIsConnected() == 1 && myTaskParams.isOnline()) {
 
                 try {
                     if (mp == null) {
@@ -162,7 +164,10 @@ public class MediaPlayerService extends Service {
                         public void onPrepared(MediaPlayer mp) {
 
                             mp.start();
-                            if(myTaskParams.isVibration())
+                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 1, 0);
+                            Handler someHandler = new Handler();
+                            someHandler.post(new VolumeRunnable(someHandler));
+                            if (myTaskParams.isVibration())
                                 vibrate();
                         }
                     });
@@ -183,6 +188,7 @@ public class MediaPlayerService extends Service {
                         @Override
                         public void onCompletion(MediaPlayer mp) {
 
+                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
                             mp.stop();
                             mp.reset();
                         }
@@ -208,11 +214,11 @@ public class MediaPlayerService extends Service {
                 }
             }
 
-                return prepared;
+            return prepared;
 
         }
 
-        private String connect(String url) throws MalformedURLException, IOException{
+        private String connect(String url) throws MalformedURLException, IOException {
 
             URL urlCont = new URL(url);
             HttpURLConnection urlConnection = (HttpURLConnection) urlCont.openConnection();
@@ -226,12 +232,10 @@ public class MediaPlayerService extends Service {
                 while ((line = r.readLine()) != null) {
                     total.append(line);
                 }
-                return total+"";
+                return total + "";
 
 
-            }
-
-            finally {
+            } finally {
                 urlConnection.disconnect();
             }
         }
@@ -241,45 +245,42 @@ public class MediaPlayerService extends Service {
             super.onPostExecute(prepared);
 
             Log.d("Prepared", "//" + prepared);
-            if(!prepared)
-            {
+            if (!prepared) {
                 alarmOffline();
             }
-
 
 
         }
 
         private void alarmOffline() {
-            try{
-                if(mp!=null)
-                {
+            try {
+                if (mp != null) {
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
                     mp.stop();
                     mp.release();
                 }
-            }
-            catch(Exception e)
-            {
-            }
-            finally {
-                mp=null;
+            } catch (Exception e) {
+            } finally {
+                mp = null;
 
                 //tenemos 2 musicas clasicas y 2 sonidos naturales. hacemos random
                 int numMusic = 2;
                 int randomNum = new Random().nextInt(numMusic) + 1;
-                mp = MediaPlayer.create(getApplicationContext(), getResources().getIdentifier("a"+String.valueOf(randomNum)+String.valueOf(myTaskParams.getTypeAlarm()),"raw",getPackageName()));
+                mp = MediaPlayer.create(getApplicationContext(), getResources().getIdentifier("a" + String.valueOf(randomNum) + String.valueOf(myTaskParams.getTypeAlarm()), "raw", getPackageName()));
                 mp.setVolume(100 * .01f, 100 * .01f);
 
                 mp.setLooping(true);
 
 
             }
-            if(!ringing)
-            {
+            if (!ringing) {
                 mp.start();
-                if(myTaskParams.isVibration())
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 1, 0);
+                Handler someHandler = new Handler();
+                someHandler.post(new VolumeRunnable(someHandler));
+                if (myTaskParams.isVibration())
                     vibrate();
-                ringing=true;
+                ringing = true;
             }
 
         }
@@ -288,7 +289,7 @@ public class MediaPlayerService extends Service {
             if (vibrator == null)
                 vibrator = (Vibrator) getApplicationContext().getSystemService(getApplicationContext().VIBRATOR_SERVICE);
 
-            long[] pattern = {0, 1000, 1500,0, 1000, 1500,0, 1000, 1500,0, 1000, 1500,0, 1000, 1500};
+            long[] pattern = {0, 1000, 1500, 0, 1000, 1500, 0, 1000, 1500, 0, 1000, 1500, 0, 1000, 1500};
 
 
             vibrator.vibrate(pattern, -1);
@@ -298,5 +299,28 @@ public class MediaPlayerService extends Service {
         }
 
 
+    }
+
+
+    public class VolumeRunnable implements Runnable {
+
+        private Handler mHandlerThatWillIncreaseVolume;
+        private final static int DELAY_UNTILL_NEXT_INCREASE = 5 * 1000;//5 seconds between each increment
+        private final  int VOLUME_INCREASE=mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)/10;
+
+        VolumeRunnable(Handler handler) {
+            this.mHandlerThatWillIncreaseVolume = handler;
+        }
+
+        @Override
+        public void run() {
+            int currentAlarmVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            if (currentAlarmVolume < mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)) { //if we havent reached the max
+
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, currentAlarmVolume+VOLUME_INCREASE, 0);
+                mHandlerThatWillIncreaseVolume.postDelayed(this, DELAY_UNTILL_NEXT_INCREASE); //"recursively call this runnable again with some delay between each increment of the volume, untill the condition above is satisfied.
+            }
+
+        }
     }
 }

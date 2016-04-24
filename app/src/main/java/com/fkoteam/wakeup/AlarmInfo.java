@@ -88,6 +88,7 @@ public class AlarmInfo implements Serializable {
         this.repeatSun=repeatSun;
         this.vibration=vibration;
         this.online=online;
+        this.setIdAlarm();
     }
 
     public String getTxtTimeAlarm() {

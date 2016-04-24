@@ -15,10 +15,9 @@
 
         <ImageView
             android:id="@+id/imageView1"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_action_alarm"
-            />
+            android:src="@drawable/ic_action_alarm" />
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/LinearLayout1"
             android:gravity="center_horizontal"
