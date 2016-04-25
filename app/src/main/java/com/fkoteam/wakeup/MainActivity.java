@@ -752,7 +752,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
-
+boolean haveInternet=true;
 
     @Override
     protected Boolean doInBackground(Void... params) {
@@ -773,7 +773,7 @@ private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
                     //actualizacion cada 15 dias
                     timestamp.add(Calendar.DAY_OF_YEAR, 15);
                     SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("updateDate", format1.format(timestamp));
+                    editor.putString("updateDate", format1.format(timestamp.getTime()));
 
                     editor.commit();
 
@@ -790,20 +790,18 @@ private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
                             String last_version=Utils.connect(getString(R.string.host)+"v.txt");
                             if(!versionName.equals(last_version)) {
                                 return true;
-                                //todo-pregunta y conexion al apk
-                                //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(myapk_link));
-                                //startActivity(intent);
                             }
                         }
 
 
                     }catch(Exception e){//this generic but you can control another types of exception
-                        //todo
+                        haveInternet=false;
                     }
                 }
 
             }catch(Exception e)
-            {//todo
+            {
+                haveInternet=false;
             }
         return false;
 
@@ -825,7 +823,7 @@ private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW ,Uri.parse(getString(R.string.host)+"wakeup_latest.txt"));
+                        Intent intent = new Intent(Intent.ACTION_VIEW ,Uri.parse(getString(R.string.host)+"wakeup_latest.apk"));
                         startActivity(intent);
                     }
                 })
@@ -838,7 +836,7 @@ private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
                         //actualizacion cada 15 dias
                         timestamp.add(Calendar.DAY_OF_YEAR, 15);
                         SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("updateDate", format1.format(timestamp));
+                        editor.putString("updateDate", format1.format(timestamp.getTime()));
 
                         editor.commit();
                     }
@@ -847,6 +845,22 @@ private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
                 .show();
 
     }
+        else
+        {
+            //si tiene internet, retrasamos la comprobacion, sino no para volver a comprobarlo
+            if(haveInternet) {
+                SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
+
+                Calendar timestamp = Calendar.getInstance();
+                //actualizacion cada 15 dias
+                timestamp.add(Calendar.DAY_OF_YEAR, 15);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("updateDate", format1.format(timestamp.getTime()));
+
+
+                editor.commit();
+            }
+        }
 
 
 
