@@ -108,7 +108,7 @@ public class AlarmFired extends AppCompatActivity {
                 stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
 
                 startActivity(intent);
-                //finish();
+                finish();
 
 
 
@@ -133,7 +133,7 @@ public class AlarmFired extends AppCompatActivity {
                 stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
 
                 startActivity(intent);
-                //finish();
+                finish();
 
 
 

@@ -18,11 +18,12 @@ import java.util.Calendar;
 public class Utils {
 
 
-    public static void startAlarm(AlarmInfo t, Context c) {
+    public static void startAlarm(AlarmInfo t, Context c, boolean isModify) {
         AlarmManager manager = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
 
 
-        if (t.getSnoozingTime() != null && t.getSnoozingId() != null) {
+        //si hay que hacer un snooze pero no estamos modificando. Porque si estamos moficando, el snooze ya estará puesto
+        if (t.getSnoozingTime() != null && t.getSnoozingId() != null && !isModify) {
             Intent alarmIntent = new Intent(c, AlarmReceiver.class);
             alarmIntent.putExtra("idAlarm", t.getSnoozingId().intValue());
             alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
@@ -200,7 +201,7 @@ public class Utils {
             }
             else {  // myAlarmDayOfTheWeek == time.get(Calendar.DAY_OF_WEEK)
                 //Check whether the time has already gone:
-                if ( (myAlarmHour < timestamp.get(Calendar.HOUR_OF_DAY)) || ((myAlarmHour == timestamp.get(Calendar.HOUR_OF_DAY)) && (myAlarmMinute < timestamp.get(Calendar.MINUTE))) ) {
+                if ( (myAlarmHour < timestamp.get(Calendar.HOUR_OF_DAY)) || ((myAlarmHour == timestamp.get(Calendar.HOUR_OF_DAY)) && (myAlarmMinute <= timestamp.get(Calendar.MINUTE))) ) {
                     //Set the day of the AlarmManager:
                     timestamp.add(Calendar.DAY_OF_YEAR, 7);
                 }

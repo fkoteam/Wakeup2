@@ -14,6 +14,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -100,7 +103,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mActionBarToolbar);
-        getSupportActionBar().setTitle(getString(R.string.title));
+        Spannable text = new SpannableString(getString(R.string.title));
+        text.setSpan(new ForegroundColorSpan(Color.WHITE), 0, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        getSupportActionBar().setTitle(text);
 
         ListView list = (ListView) this.findViewById(R.id.listView1);
         TextView emptyText = (TextView) findViewById(R.id.empty_list_item);
@@ -305,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             currentAlarms.set(position, ai);
                             saveData();
                             listAdapter.notifyDataSetChanged();
-                            Utils.startAlarm(ai, getApplicationContext());
+                            Utils.startAlarm(ai, getApplicationContext(),true);
 
 
                         }
@@ -571,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         saveData();
 
 
-                        Utils.startAlarm(currentAlarms.get(position), getApplicationContext());
+                        Utils.startAlarm(currentAlarms.get(position), getApplicationContext(),false);
 
                         Toast.makeText(getApplicationContext(), getString(R.string.alarm_enabled), Toast.LENGTH_SHORT).show();
 
@@ -633,7 +638,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             currentAlarms = new ArrayList<AlarmInfo>();
         }
 
-        Utils.startAlarm(t, this);
+        Utils.startAlarm(t, this,false);
         currentAlarms.add(t);
 
         saveData();
@@ -693,7 +698,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 for (AlarmInfo ai : currentAlarms) {
                     if (ai.active) {
                         unSnoozeAlarm(ai, pos);
-                        Utils.startAlarm(ai, this);
+                        Utils.startAlarm(ai, this,false);
                     }
                     pos++;
                 }
@@ -722,7 +727,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         saveData();
 
 
-        Utils.startAlarm(ai2, this);
+        Utils.startAlarm(ai2, this,false);
         WakeLocker.release();
 
 

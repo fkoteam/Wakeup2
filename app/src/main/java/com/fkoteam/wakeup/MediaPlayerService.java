@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.MalformedInputException;
 import java.util.Random;
@@ -218,10 +219,13 @@ public class MediaPlayerService extends Service {
 
         }
 
-        private String connect(String url) throws MalformedURLException, IOException {
+        private String connect(String url) throws MalformedURLException, IOException,SocketTimeoutException {
 
             URL urlCont = new URL(url);
             HttpURLConnection urlConnection = (HttpURLConnection) urlCont.openConnection();
+            urlConnection.setConnectTimeout(5000); //set timeout to 5 seconds
+
+
             try {
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 

@@ -72,13 +72,12 @@ public class AlarmInfo implements Serializable {
                      boolean repeatFri,
                      boolean repeatSat,
                      boolean repeatSun,int typeAlarm, boolean online,boolean vibration) {
+
         this.txtTimeAlarm = txtTimeAlarm;
         this.hourAlarm = hourAlarm;
         this.minuteAlarm = minuteAlarm;
         this.active=true;
         this.typeAlarm=typeAlarm;
-        this.snoozed=0;
-
         this.repeatMon=repeatMon;
         this.repeatTue=repeatTue;
         this.repeatWed=repeatWed;
