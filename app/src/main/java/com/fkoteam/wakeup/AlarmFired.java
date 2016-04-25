@@ -69,6 +69,13 @@ public class AlarmFired extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
                 progress = progresValue;
+                TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
+                String s = "";
+                if (seekBarToMinutes(progress) > 1)
+                    s = getString(R.string.plural);
+
+                textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
+
             }
 
             @Override

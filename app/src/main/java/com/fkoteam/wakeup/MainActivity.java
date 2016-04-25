@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,8 +40,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -52,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     MyAdapter listAdapter = new MyAdapter();
     FloatingActionButton addButton;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -63,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         initAlarmPrefs();
-        //Utils.initAlarmPrefs(sharedPref,getApplicationContext(),getString(R.string.preference_alarms_file),currentAlarms);
+        checkUpdate runner = new checkUpdate();
+        runner.execute();
 
 
         Bundle b = getIntent().getExtras();
@@ -304,9 +310,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             ai_new.setIdAlarm();
                             addAlarm(ai_new);
                         } else {
-                            deleteAlarm(position, false, false);
 
-                            ai.modifyValues(txtTime.getText() + "", hourInt, minuteInt, ((CheckBox) popupView.findViewById(R.id.checkMon)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkTue)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkWed)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkThu)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkFri)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSat)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSun)).isChecked(), seekBar.getProgress(), internet, vibration);
+                            Integer snoozingId=ai.getSnoozingId();
+                            Calendar snoozingTime=ai.getSnoozingTime();
+                            int snoozed =ai.getSnoozed();
+                            deleteAlarm(position, false, true);
+
+
+
+                            ai.modifyValues(txtTime.getText() + "", hourInt, minuteInt, ((CheckBox) popupView.findViewById(R.id.checkMon)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkTue)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkWed)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkThu)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkFri)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSat)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSun)).isChecked(), seekBar.getProgress(), internet, vibration,snoozingId,snoozingTime,snoozed);
                             currentAlarms.set(position, ai);
                             saveData();
                             listAdapter.notifyDataSetChanged();
@@ -690,7 +702,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         //      load tasks from preference
-
         try {
             currentAlarms = (ArrayList<AlarmInfo>) ObjectSerializer.deserialize(sharedPref.getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>())));
             int pos = 0;
@@ -708,6 +719,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             e.printStackTrace();
         }
     }
+
 
 
     private void snoozeAlarm(int snooze, AlarmInfo ai) {
@@ -734,4 +746,114 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
+
+
+
+
+
+private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
+
+
+    @Override
+    protected Boolean doInBackground(Void... params) {
+
+
+
+            try {
+                SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
+
+                sharedPref = getApplicationContext().getSharedPreferences(
+                        getString(R.string.preference_alarms_file), Context.MODE_PRIVATE);
+
+
+                String updateDate = sharedPref.getString("updateDate", "0");
+
+                if (updateDate == null || "0".equals(updateDate)) {
+                    Calendar timestamp = Calendar.getInstance();
+                    //actualizacion cada 15 dias
+                    timestamp.add(Calendar.DAY_OF_YEAR, 15);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("updateDate", format1.format(timestamp));
+
+                    editor.commit();
+
+                }
+                else
+                {
+                    try{
+                        Calendar parsedDate = Calendar.getInstance();
+
+                        parsedDate.setTime(format1.parse(updateDate));
+                        int diff = (int) (Calendar.getInstance().getTimeInMillis() - parsedDate.getTimeInMillis());
+                        if (diff > 0) {
+                            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                            String last_version=Utils.connect(getString(R.string.host)+"v.txt");
+                            if(!versionName.equals(last_version)) {
+                                return true;
+                                //todo-pregunta y conexion al apk
+                                //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(myapk_link));
+                                //startActivity(intent);
+                            }
+                        }
+
+
+                    }catch(Exception e){//this generic but you can control another types of exception
+                        //todo
+                    }
+                }
+
+            }catch(Exception e)
+            {//todo
+            }
+        return false;
+
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+     */
+    @Override
+    protected void onPostExecute(Boolean result) {
+        if(result)
+        {
+
+        // Alternative: show a dialog
+        (new AlertDialog.Builder(MainActivity.this))
+                .setMessage(getString(R.string.question_update))
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW ,Uri.parse(getString(R.string.host)+"wakeup_latest.txt"));
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMdd");
+
+                        Calendar timestamp = Calendar.getInstance();
+                        //actualizacion cada 15 dias
+                        timestamp.add(Calendar.DAY_OF_YEAR, 15);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("updateDate", format1.format(timestamp));
+
+                        editor.commit();
+                    }
+                })
+                .setTitle(getString(R.string.confirm_update_title))
+                .show();
+
+    }
+
+
+
+
+
+
+
+}
+}
 }

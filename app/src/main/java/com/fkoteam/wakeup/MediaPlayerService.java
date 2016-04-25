@@ -64,10 +64,10 @@ public class MediaPlayerService extends Service {
     public void onDestroy() {
         super.onDestroy();
         if (mp != null) {
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
 
             mp.stop();
             mp.release();
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
             mp = null;
         }
         if (vibrator != null)
@@ -147,14 +147,14 @@ public class MediaPlayerService extends Service {
 
                     //para musica clasica iria a buscar 00
                     //para naturaleza, 01
-                    String contMusic = connect("http://fkoteam.github.io/0" + String.valueOf(myTaskParams.getTypeAlarm()));
+                    String contMusic =Utils.connect(getString(R.string.host) + String.valueOf(myTaskParams.getTypeAlarm()));
 
 
                     int numMusic = Integer.parseInt(contMusic);
                     int randomNum = new Random().nextInt(numMusic) + 1;
 
 
-                    String urlMusic = connect("http://fkoteam.github.io/" + String.valueOf(randomNum) + String.valueOf(myTaskParams.getTypeAlarm()));
+                    String urlMusic = Utils.connect(getString(R.string.host) + String.valueOf(randomNum) + String.valueOf(myTaskParams.getTypeAlarm()));
 
                     if (urlMusic == null || urlMusic.length() < 1)
                         throw new Exception();
@@ -163,11 +163,10 @@ public class MediaPlayerService extends Service {
 
                     mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                         public void onPrepared(MediaPlayer mp) {
-
-                            mp.start();
                             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 1, 0);
                             Handler someHandler = new Handler();
                             someHandler.post(new VolumeRunnable(someHandler));
+                            mp.start();
                             if (myTaskParams.isVibration())
                                 vibrate();
                         }
@@ -189,9 +188,10 @@ public class MediaPlayerService extends Service {
                         @Override
                         public void onCompletion(MediaPlayer mp) {
 
-                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
                             mp.stop();
                             mp.reset();
+                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
+
                         }
                     });
                     mp.prepareAsync();
@@ -219,31 +219,6 @@ public class MediaPlayerService extends Service {
 
         }
 
-        private String connect(String url) throws MalformedURLException, IOException,SocketTimeoutException {
-
-            URL urlCont = new URL(url);
-            HttpURLConnection urlConnection = (HttpURLConnection) urlCont.openConnection();
-            urlConnection.setConnectTimeout(5000); //set timeout to 5 seconds
-
-
-            try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-
-                BufferedReader r = new BufferedReader(new InputStreamReader(in));
-
-                StringBuilder total = new StringBuilder();
-                String line;
-                while ((line = r.readLine()) != null) {
-                    total.append(line);
-                }
-                return total + "";
-
-
-            } finally {
-                urlConnection.disconnect();
-            }
-        }
-
         @Override
         protected void onPostExecute(Boolean prepared) {
             super.onPostExecute(prepared);
@@ -259,9 +234,10 @@ public class MediaPlayerService extends Service {
         private void alarmOffline() {
             try {
                 if (mp != null) {
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
                     mp.stop();
                     mp.release();
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, 0);
+
                 }
             } catch (Exception e) {
             } finally {
@@ -278,10 +254,11 @@ public class MediaPlayerService extends Service {
 
             }
             if (!ringing) {
-                mp.start();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 1, 0);
                 Handler someHandler = new Handler();
                 someHandler.post(new VolumeRunnable(someHandler));
+                mp.start();
+
                 if (myTaskParams.isVibration())
                     vibrate();
                 ringing = true;

@@ -7,7 +7,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,8 +30,7 @@ public class Utils {
         AlarmManager manager = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
 
 
-        //si hay que hacer un snooze pero no estamos modificando. Porque si estamos moficando, el snooze ya estará puesto
-        if (t.getSnoozingTime() != null && t.getSnoozingId() != null && !isModify) {
+        if (t.getSnoozingTime() != null && t.getSnoozingId() != null) {
             Intent alarmIntent = new Intent(c, AlarmReceiver.class);
             alarmIntent.putExtra("idAlarm", t.getSnoozingId().intValue());
             alarmIntent.putExtra("typeAlarm", t.getTypeAlarm());
@@ -36,8 +43,10 @@ public class Utils {
 
             manager.set(AlarmManager.RTC_WAKEUP,
                     t.getSnoozingTime().getTimeInMillis(), pendingIntent);
-        } else {
+        }
 
+        //si se está modificando, además del snooze, hay que dar de alta las alarmas normales
+        if (t.getSnoozingTime() == null || t.getSnoozingId() == null || isModify) {
 
             if (t.anyRepeat()) {
                 int i = 0;
@@ -151,14 +160,17 @@ public class Utils {
 
             } else {
 
+                Calendar timestamp = Calendar.getInstance();
+
+
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(System.currentTimeMillis());
                 calendar.set(Calendar.HOUR_OF_DAY, t.getHourAlarm());
                 calendar.set(Calendar.MINUTE, t.getMinuteAlarm());
 
-                int diff = (int) (Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis());
-                if (diff > 0)
+                if ( (t.getHourAlarm() < timestamp.get(Calendar.HOUR_OF_DAY)) || ((t.getHourAlarm() == timestamp.get(Calendar.HOUR_OF_DAY)) && (t.getMinuteAlarm() <= timestamp.get(Calendar.MINUTE))) )
                     calendar.add(Calendar.DATE, 1);
+
 
 
                 calendar.set(Calendar.SECOND, 0);
@@ -217,5 +229,32 @@ public class Utils {
         return timestamp;
     }
 
+
+
+
+    public static String connect(String url) throws MalformedURLException, IOException,SocketTimeoutException {
+
+        URL urlCont = new URL(url);
+        HttpURLConnection urlConnection = (HttpURLConnection) urlCont.openConnection();
+        urlConnection.setConnectTimeout(5000); //set timeout to 5 seconds
+
+
+        try {
+            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+
+            BufferedReader r = new BufferedReader(new InputStreamReader(in));
+
+            StringBuilder total = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                total.append(line);
+            }
+            return total + "";
+
+
+        } finally {
+            urlConnection.disconnect();
+        }
+    }
 
 }

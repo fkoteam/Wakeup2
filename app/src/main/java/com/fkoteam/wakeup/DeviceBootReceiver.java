@@ -33,11 +33,7 @@ public class DeviceBootReceiver extends BroadcastReceiver {
             for(AlarmInfo ai : currentAlarms)
             {
                 if(ai.active)
-                {
-                    ai.setSnoozingId(null);
-                    ai.setSnoozingTime(null);
                     Utils.startAlarm(ai, context,false);
-                }
             }
 
         } catch (IOException e) {

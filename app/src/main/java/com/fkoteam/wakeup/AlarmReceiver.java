@@ -113,4 +113,7 @@ final boolean online=intent.getBooleanExtra("online",false);
 
         return networkInfo != null && networkInfo.getState() == NetworkInfo.State.CONNECTED;
     }
+
+
+
 }
