@@ -33,7 +33,7 @@
     <string name="alarm_disabled">Alarm disabled</string>
     <string name="confirm_delete">Delete alarm at</string>
     <string name="empty">Press the bottom button to add an alarm</string>
-    <string name="connectionProblems">Due to connection problems, a default sound will be played</string>
+    <string name="connectionProblems">Due to connection problems, a built-in sound will be played</string>
     <string name="textInternet">Online Mode</string>
     <string name="textVibrate">Vibration</string>
     <string name="modifyAlarm">Change Alarm</string>
