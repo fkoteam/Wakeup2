@@ -33,7 +33,7 @@
     <string name="tuesday">Mar</string>
     <string name="wednesday">Mié</string>
     <string name="wrong_hour">Hora incorrecta</string>
-    <string name="connectionProblems">Por problemas de conexión, se reproducirá el sonido por defecto</string>
+    <string name="connectionProblems">Por problemas de conexión, se reproducirán sonidos integrados en la aplicación</string>
     <string name="textInternet">Modo Online</string>
     <string name="textVibrate">Vibración</string>
     <string name="modifyAlarm">Modificar Alarma</string>
