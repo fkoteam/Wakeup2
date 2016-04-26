@@ -39,6 +39,9 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -47,6 +50,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+
+    AdView mAdView;
+
 
     public MainActivity() {
     }
@@ -64,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mAdView = (AdView) findViewById(R.id.adViewHome);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
+        mAdView.loadAd(adRequest);
         addButton = (FloatingActionButton) findViewById(R.id.fab);
 
 
@@ -870,4 +879,23 @@ boolean haveInternet=true;
 
 }
 }
+
+    @Override
+    protected void onPause() {
+        if(mAdView!=null)
+            mAdView.pause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mAdView!=null)
+            mAdView.resume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        this.moveTaskToBack(true);
+    }
 }

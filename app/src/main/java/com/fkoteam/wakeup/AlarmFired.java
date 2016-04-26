@@ -193,6 +193,9 @@ public class AlarmFired extends AppCompatActivity {
         if(mAdView!=null)
             mAdView.resume();
     }
+    @Override
+    public void onBackPressed() {
+    }
 
 
 
