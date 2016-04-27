@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -70,91 +71,64 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mAdView = (AdView) findViewById(R.id.adViewHome);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
-        mAdView.loadAd(adRequest);
-        addButton = (FloatingActionButton) findViewById(R.id.fab);
+            mAdView = (AdView) findViewById(R.id.adViewHome);
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
+            mAdView.loadAd(adRequest);
+            addButton = (FloatingActionButton) findViewById(R.id.fab);
 
 
-        initAlarmPrefs();
-        checkUpdate runner = new checkUpdate();
-        runner.execute();
+            initAlarmPrefs();
+            checkUpdate runner = new checkUpdate();
+            runner.execute();
 
 
-        Bundle b = getIntent().getExtras();
-        if (b != null) {
-            int snooze = b.getInt("snooze", -2);
-            int idAlarm = b.getInt("tryDisableAlarm");
-            AlarmInfo ai = null;
-            if (idAlarm > 0) {
-                ai = getAlarmById(idAlarm);
+            Bundle b = getIntent().getExtras();
+            if (b != null) {
+                int snooze = b.getInt("snooze", -2);
+                int idAlarm = b.getInt("tryDisableAlarm");
+                AlarmInfo ai = null;
+                if (idAlarm > 0) {
+                    ai = getAlarmById(idAlarm);
+
+                }
+
+                if (ai != null) {
+
+                    unSnoozeAlarm(ai, -1);
+
+                    if (snooze > 0)
+                        snoozeAlarm(snooze, ai);
+                    else
+                        tryDisableAlarm(ai, idAlarm);
+
+
+                }
 
             }
 
-            if (ai != null) {
 
-                unSnoozeAlarm(ai, -1);
+            addButton.setOnClickListener(new View.OnClickListener() {
 
-                if (snooze > 0)
-                    snoozeAlarm(snooze, ai);
-                else
-                    tryDisableAlarm(ai, idAlarm);
+                public void onClick(View v) {
 
+                    doPopupWindow(null, -1);
+                }
 
-            }
-
-        }
+            });
 
 
-        addButton.setOnClickListener(new View.OnClickListener() {
+            Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(mActionBarToolbar);
+            Spannable text = new SpannableString(getString(R.string.title));
+            text.setSpan(new ForegroundColorSpan(Color.WHITE), 0, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            getSupportActionBar().setTitle(text);
 
-            public void onClick(View v) {
-
-                doPopupWindow(null, -1);
-            }
-
-        });
-
-
-        Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mActionBarToolbar);
-        Spannable text = new SpannableString(getString(R.string.title));
-        text.setSpan(new ForegroundColorSpan(Color.WHITE), 0, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        getSupportActionBar().setTitle(text);
-
-        ListView list = (ListView) this.findViewById(R.id.listView1);
-        TextView emptyText = (TextView) findViewById(R.id.empty_list_item);
-        list.setEmptyView(emptyText);
-        list.setAdapter(listAdapter);
-        list.setOnItemClickListener(this);
-        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                                            @Override
-                                            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-
-
-                                                // Alternative: show a dialog
-                                                (new AlertDialog.Builder(MainActivity.this))
-                                                        .setMessage(getString(R.string.confirm_delete) + " " + currentAlarms.get(position).getTxtTimeAlarm() + "H?")
-                                                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(DialogInterface dialog, int which) {
-                                                                deleteAlarm(position, true, true);
-                                                            }
-                                                        })
-                                                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(DialogInterface dialog, int which) {
-                                                                // Cancel: do something
-                                                            }
-                                                        })
-                                                        .setTitle(getString(R.string.confirm_delete_title))
-                                                        .show();
-
-                                                return true;
-                                            }
-                                        }
-
-        );
+            ListView list = (ListView) this.findViewById(R.id.listView1);
+            TextView emptyText = (TextView) findViewById(R.id.empty_list_item);
+            list.setEmptyView(emptyText);
+            list.setAdapter(listAdapter);
+            list.setOnItemClickListener(this);
+            list.setOnItemLongClickListener(new MiListener(this));
 
 
     }
@@ -397,6 +371,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     = (LayoutInflater) getBaseContext()
                     .getSystemService(LAYOUT_INFLATER_SERVICE);
             final View popupViewAbout = layoutInflater.inflate(R.layout.popup_about, null);
+            TextView version_id= (TextView) popupViewAbout.findViewById(R.id.version_id);
+            try {
+                version_id.setText(version_id.getText()+" "+getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+            } catch (PackageManager.NameNotFoundException e) {
+            }
             final PopupWindow popupWindowAbout = new PopupWindow(
                     popupViewAbout,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -668,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private void deleteAlarm(int position, boolean deleteFromList, boolean deleteSnooze) {
+    protected void deleteAlarm(int position, boolean deleteFromList, boolean deleteSnooze) {
 
         if (deleteSnooze)
             unSnoozeAlarm(currentAlarms.get(position), position);
@@ -737,8 +716,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Calendar cal = (Calendar) today.clone();
         cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY) + 0);
         cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + snooze);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
 
         AlarmInfo ai2 = currentAlarms.get(ai.getPosition());
         ai2.setSnoozed(snooze);
@@ -896,6 +873,7 @@ boolean haveInternet=true;
 
     @Override
     public void onBackPressed() {
-        this.moveTaskToBack(true);
+
+        //do nothing
     }
 }

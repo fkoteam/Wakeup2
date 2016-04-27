@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -27,125 +28,128 @@ public class AlarmFired extends AppCompatActivity {
     int progress = 2;
     AdView mAdView;
     Button btnSnoozePopup;
+    private static Timer timer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_fired);
+
+
         mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
-        mAdView.loadAd(adRequest);
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
+            mAdView.loadAd(adRequest);
 
 
+            timer = new Timer("timer", true);
+            btnSnoozePopup = (Button) findViewById(R.id.snooze);
+            //si no se para en 3 minutos, autosnooze
+            timer.schedule(new autoSnooze(), 3 * 60 * 1000);
 
 
-        final Timer timer = new Timer("timer",true);
-        btnSnoozePopup = (Button) findViewById(R.id.snooze);
-        //si no se para en 2 minutos, autosnooze
-        timer.schedule(new autoSnooze(), 2 * 60 * 1000);
+            Bundle b = getIntent().getExtras();
+            final int idAlarm = b.getInt("idAlarm");
+            final int isConnected = b.getInt("isConnected");
+            final boolean online = b.getBoolean("online");
 
-
-
-
-        Bundle b = getIntent().getExtras();
-        final int idAlarm=b.getInt("idAlarm");
-        final int isConnected=b.getInt("isConnected");
-        final boolean online=b.getBoolean("online");
-
-        //el movil no está online y el usuario queria alarma online
-        if(isConnected==0 && online)
-        {
-            TextView connectionProblems = (TextView) findViewById(R.id.connectionProblems);
-            connectionProblems.setText(getString(R.string.connectionProblems));
-
-        }
-        SeekBar seekSnooze = (SeekBar) findViewById(R.id.seekSnooze);
-
-
-        seekSnooze.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
-                progress = progresValue;
-                TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
-                String s = "";
-                if (seekBarToMinutes(progress) > 1)
-                    s = getString(R.string.plural);
-
-                textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
+            //el movil no está online y el usuario queria alarma online
+            if (isConnected == 0 && online) {
+                TextView connectionProblems = (TextView) findViewById(R.id.connectionProblems);
+                connectionProblems.setText(getString(R.string.connectionProblems));
 
             }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
-                String s = "";
-                if (seekBarToMinutes(progress) > 1)
-                    s = getString(R.string.plural);
-
-                textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
-
-            }
-        });
+            SeekBar seekSnooze = (SeekBar) findViewById(R.id.seekSnooze);
 
 
+            seekSnooze.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
 
-        Button btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
-        btnCancelPopup.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+                    progress = progresValue;
+                    TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
+                    String s = "";
+                    if (seekBarToMinutes(progress) > 1)
+                        s = getString(R.string.plural);
 
-                //ya no hace falta el autosnooze
-                timer.cancel();
+                    textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
 
-                Intent intent = new Intent();
-                intent.setClass(AlarmFired.this,
-                        MainActivity.class);
-                intent.putExtra("snooze", -1);
+                }
 
-                intent.putExtra("tryDisableAlarm", idAlarm);
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
 
-                WakeLocker.release();
-                stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
+                    String s = "";
+                    if (seekBarToMinutes(progress) > 1)
+                        s = getString(R.string.plural);
 
-                startActivity(intent);
-                finish();
+                    textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
 
-
-
-            }
-        });
-
-        btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                //ya no hace falta el autosnooze
-                timer.cancel();
-
-                Intent intent = new Intent();
-                intent.setClass(AlarmFired.this,
-                        MainActivity.class);
-
-                intent.putExtra("snooze", seekBarToMinutes(progress));
-                intent.putExtra("tryDisableAlarm", idAlarm);
+                }
+            });
 
 
-                WakeLocker.release();
-                stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
+            Button btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
+            btnCancelPopup.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
 
-                startActivity(intent);
-                finish();
+                    //ya no hace falta el autosnooze
+                    if (timer != null) {
+                        timer.cancel();
+                        timer.purge();
+                        timer = null;
+                    }
+
+                    Intent intent = new Intent();
+                    intent.setClass(AlarmFired.this,
+                            MainActivity.class);
+                    intent.putExtra("snooze", -1);
+
+                    intent.putExtra("tryDisableAlarm", idAlarm);
+
+                    WakeLocker.release();
+                    stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
+
+                    startActivity(intent);
+                    finish();
 
 
+                }
+            });
 
-            }
-        });
+            btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+
+                    //ya no hace falta el autosnooze
+                    if (timer != null) {
+                        timer.cancel();
+                        timer.purge();
+                        timer = null;
+                    }
+
+                    Intent intent = new Intent();
+                    intent.setClass(AlarmFired.this,
+                            MainActivity.class);
+
+                    intent.putExtra("snooze", seekBarToMinutes(progress));
+                    intent.putExtra("tryDisableAlarm", idAlarm);
+
+
+                    WakeLocker.release();
+                    stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
+
+                    startActivity(intent);
+                    finish();
+
+
+                }
+            });
+
 
 
     }

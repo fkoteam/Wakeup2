@@ -38,7 +38,8 @@
         </LinearLayout>
         <ImageView
             android:id="@+id/imageView1"
-            android:src="@drawable/ic_action_alarm" />
+            android:src="@drawable/ic_action_alarm"
+            android:layout_gravity="center_vertical"/>
         </TableRow>
     </TableLayout>
 

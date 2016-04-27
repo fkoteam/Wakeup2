@@ -147,7 +147,7 @@ public class MediaPlayerService extends Service {
 
                     //para musica clasica iria a buscar 00
                     //para naturaleza, 01
-                    String contMusic =Utils.connect(getString(R.string.host) + String.valueOf(myTaskParams.getTypeAlarm()));
+                    String contMusic =Utils.connect(getString(R.string.host)+ "0"+ String.valueOf(myTaskParams.getTypeAlarm()));
 
 
                     int numMusic = Integer.parseInt(contMusic);
@@ -194,7 +194,8 @@ public class MediaPlayerService extends Service {
 
                         }
                     });
-                    mp.prepareAsync();
+                    mp.prepare();
+                    mp.setLooping(true);
                     prepared = true;
                 } catch (IllegalArgumentException e) {
                     Log.d("IllegarArgument", e.getMessage());
@@ -286,7 +287,7 @@ public class MediaPlayerService extends Service {
     public class VolumeRunnable implements Runnable {
 
         private Handler mHandlerThatWillIncreaseVolume;
-        private final static int DELAY_UNTILL_NEXT_INCREASE = 5 * 1000;//5 seconds between each increment
+        private final static int DELAY_UNTILL_NEXT_INCREASE = 3 * 1000;//5 seconds between each increment
         private final  int VOLUME_INCREASE=mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)/10;
 
         VolumeRunnable(Handler handler) {

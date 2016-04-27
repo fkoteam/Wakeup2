@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about_mess1">Tots els continguts estan\nallotjats en Archive.org.\nDóna per recolçar aquestaONG</string>
+    <string name="about_mess1">Tots els continguts estan\nallotjats en Archive.org.\nDóna per recolçar aquesta ONG</string>
     <string name="accept">Acceptar</string>
     <string name="action_about">Sobre</string>
     <string name="add_alarm">Afegir una alarma</string>
@@ -33,7 +33,7 @@
     <string name="tuesday">Dm.</string>
     <string name="wednesday">Dc.</string>
     <string name="wrong_hour">Hora incorrecta</string>
-    <string name="connectionProblems">Per problemes de connexió, es reproduirà un so integrat a l'aplicació</string>
+    <string name="connectionProblems">Per problemes de connexió, es reproduirà un so integrat a l\'aplicació</string>
     <string name="textInternet">Mode Online</string>
     <string name="textVibrate">Vibració</string>
     <string name="modifyAlarm">Modificar Alarma</string>

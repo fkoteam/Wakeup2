@@ -22,7 +22,7 @@
     <string name="classical">Classical\nMusic</string>
     <string name="nature_sounds">Nature\nSounds</string>
     <string name="accept">Accept</string>
-    <string name="version" translatable="false">Ver. 1.0</string>
+    <string name="version" translatable="false">Ver.</string>
     <string name="about_mess1">All contents are hosted on Archive.org.\nDonate to help this non-profit</string>
     <string name="url_donate" translatable="false">https://archive.org/donate/</string>
     <string name="close">Close</string>
