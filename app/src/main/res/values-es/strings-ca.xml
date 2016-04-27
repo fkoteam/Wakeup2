@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_mess1">Tots els continguts estan\nallotjats en Archive.org.\nDóna per recolçar aquestaONG</string>
+    <string name="accept">Acceptar</string>
+    <string name="action_about">Sobre</string>
+    <string name="add_alarm">Afegir una alarma</string>
+    <string name="alarm_disabled">Alarma desactivada</string>
+    <string name="alarm_enabled">Alarma activada</string>
+    <string name="cancel">Cancelar</string>
+    <string name="classical">Música\nClàsica</string>
+    <string name="close">Tancar</string>
+    <string name="confirm_delete">Eliminar alarma a les</string>
+    <string name="confirm_delete_title">Confirmi</string>
+    <string name="empty">Premi el botó inferior per afegir una alarma</string>
+    <string name="five_minutes">5 minuts</string>
+    <string name="friday">Dv.</string>
+    <string name="hour_hint">Hora...</string>
+    <string name="minute">minut</string>
+    <string name="monday">Dl.</string>
+    <string name="nature_sounds">Sons\nnatura</string>
+    <string name="no_repeat">Sense repetir</string>
+    <string name="plural">s</string>
+    <string name="repeat">Repetir:</string>
+    <string name="saturday">Ds.</string>
+    <string name="snooze">Posposar</string>
+    <string name="snoozed">posposat</string>
+    <string name="snoozing_time">Temps a posposar</string>
+    <string name="stop_alarm">Aturar alarma</string>
+    <string name="sunday">Dg.</string>
+    <string name="thursday">Dj.</string>
+    <string name="title">Relaxing Wake up</string>
+    <string name="title_activity_alarm_fired">Alarma...</string>
+    <string name="tuesday">Dm.</string>
+    <string name="wednesday">Dc.</string>
+    <string name="wrong_hour">Hora incorrecta</string>
+    <string name="connectionProblems">Per problemes de connexió, es reproduirà un so integrat a l'aplicació</string>
+    <string name="textInternet">Mode Online</string>
+    <string name="textVibrate">Vibració</string>
+    <string name="modifyAlarm">Modificar Alarma</string>
+    <string name="confirm_update_title">Actualitzar app</string>
+    <string name="question_update">Actualitzar amb la última versió?</string>
+</resources>
