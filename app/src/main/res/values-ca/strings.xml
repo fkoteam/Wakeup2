@@ -39,4 +39,5 @@
     <string name="modifyAlarm">Modificar Alarma</string>
     <string name="confirm_update_title">Actualitzar app</string>
     <string name="question_update">Actualitzar amb la última versió?</string>
+    <string name="internet_warning">Si hi ha connexió, descarrega noves melodies. Wifi recomanat</string>
 </resources>

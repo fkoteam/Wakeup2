@@ -20,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,6 +30,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -44,11 +44,9 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -128,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             list.setEmptyView(emptyText);
             list.setAdapter(listAdapter);
             list.setOnItemClickListener(this);
-            list.setOnItemLongClickListener(new MiListener(this));
+            list.setOnItemLongClickListener(new ListenerBorradoAlarma(this));
 
 
     }
@@ -200,8 +198,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     CheckBox chk = (CheckBox) popupView.findViewById(R.id.checkSun);
                     chk.setChecked(true);
                 }
-            }
 
+
+                }
             if (ai != null && ai.isOnline()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     Switch internet = ((Switch) popupView.findViewById(R.id.switchInternet));
@@ -211,6 +210,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     chk.setChecked(true);
                 }
             }
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                Switch internet = ((Switch) popupView.findViewById(R.id.switchInternet));
+                internet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+                        if(arg1)
+                            Toast.makeText(getApplicationContext(), getString(R.string.internet_warning) , Toast.LENGTH_LONG).show();
+                    }
+                } );
+            } else {
+                CheckBox internet = (CheckBox) popupView.findViewById(R.id.switchInternet);
+                internet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+                        if(arg1)
+                            Toast.makeText(getApplicationContext(), getString(R.string.internet_warning) , Toast.LENGTH_LONG).show();
+                    }
+                } );                    }
 
 
             if (ai != null && ai.isVibration()) {
@@ -549,6 +570,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
 
             final View finalConvertView = convertView;
+            imageView.setOnLongClickListener(new ListenerBorradoAlarma(MainActivity.this,position));
             imageView.setOnClickListener(new View.OnClickListener() {
 
                 public void onClick(View v) {

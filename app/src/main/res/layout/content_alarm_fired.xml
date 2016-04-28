@@ -46,31 +46,22 @@
             android:id="@+id/snoozeTimeTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/five_minutes" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="0dp"
-        android:id="@+id/linearLayout">
+            android:text="@string/five_minutes"
+            android:layout_gravity="center_horizontal"/>
         <Button
             android:id="@+id/snooze"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/snooze" />
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            />
+            android:text="@string/snooze"
+            android:layout_gravity="center_horizontal"/>
+
         <Button
             android:id="@+id/stopAlarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stop_alarm" />
+            android:text="@string/stop_alarm"
+            android:layout_gravity="center_horizontal"/>
 
-
-    </LinearLayout>
         <TextView
             android:id="@+id/connectionProblems"
             android:layout_width="wrap_content"

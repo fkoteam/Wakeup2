@@ -29,6 +29,9 @@ public class AlarmFired extends AppCompatActivity {
     AdView mAdView;
     Button btnSnoozePopup;
     private static Timer timer;
+    Button btnCancelPopup;
+    private boolean isInFocus = false;
+
 
 
     @Override
@@ -94,7 +97,7 @@ public class AlarmFired extends AppCompatActivity {
             });
 
 
-            Button btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
+            btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
             btnCancelPopup.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
@@ -188,6 +191,12 @@ public class AlarmFired extends AppCompatActivity {
     protected void onPause() {
         if(mAdView!=null)
             mAdView.pause();
+        //ya no hace falta el autosnooze
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
         super.onPause();
     }
 
@@ -196,6 +205,17 @@ public class AlarmFired extends AppCompatActivity {
         super.onResume();
         if(mAdView!=null)
             mAdView.resume();
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (!isInFocus) finish();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        isInFocus = hasFocus;
     }
     @Override
     public void onBackPressed() {

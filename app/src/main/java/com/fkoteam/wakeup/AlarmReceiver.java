@@ -80,7 +80,7 @@ final boolean online=intent.getBooleanExtra("online",false);
 
 
 
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         context.startActivity(intent2);
 
                     }catch (Exception e)

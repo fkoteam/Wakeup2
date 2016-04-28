@@ -8,17 +8,36 @@ import android.widget.AdapterView;
 /**
  * Created by SweetHome2 on 27/04/2016.
  */
-public class MiListener implements AdapterView.OnItemLongClickListener {
+public class ListenerBorradoAlarma implements AdapterView.OnItemLongClickListener, View.OnLongClickListener {
 
     private MainActivity mainActivity;
+    private int position;
 
-    public MiListener(MainActivity mainActivity) {
+    public ListenerBorradoAlarma(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
+    }
+
+    public ListenerBorradoAlarma(MainActivity mainActivity, int position) {
+        this.mainActivity = mainActivity;
+        this.position=position;
+
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+        this.position=position;
+        return mensajeBorrar();
 
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return mensajeBorrar();
+    }
+
+
+    private boolean mensajeBorrar()
+    {
 
         // Alternative: show a dialog
         (new AlertDialog.Builder(this.mainActivity))

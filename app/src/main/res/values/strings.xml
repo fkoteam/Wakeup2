@@ -45,6 +45,7 @@
     <string name="host" translatable="false">http://fkoteam.github.io/</string>
     <string name="question_update">Update to new version?</string>
     <string name="confirm_update_title">Update app</string>
+    <string name="internet_warning">Stream extra melodies from internet, if available. Wifi recommended</string>
 
 
 </resources>
