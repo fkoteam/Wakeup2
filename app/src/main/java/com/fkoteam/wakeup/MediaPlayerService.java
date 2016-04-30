@@ -87,7 +87,7 @@ public class MediaPlayerService extends Service {
                 .execute();
 
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 
@@ -147,14 +147,14 @@ public class MediaPlayerService extends Service {
 
                     //para musica clasica iria a buscar 00
                     //para naturaleza, 01
-                    String contMusic =Utils.connect(getString(R.string.host)+ "0"+ String.valueOf(myTaskParams.getTypeAlarm()));
+                    String contMusic =AlarmList.connect(getString(R.string.host)+ "0"+ String.valueOf(myTaskParams.getTypeAlarm()));
 
 
                     int numMusic = Integer.parseInt(contMusic);
                     int randomNum = new Random().nextInt(numMusic) + 1;
 
 
-                    String urlMusic = Utils.connect(getString(R.string.host) + String.valueOf(randomNum) + String.valueOf(myTaskParams.getTypeAlarm()));
+                    String urlMusic = AlarmList.connect(getString(R.string.host) + String.valueOf(randomNum) + String.valueOf(myTaskParams.getTypeAlarm()));
 
                     if (urlMusic == null || urlMusic.length() < 1)
                         throw new Exception();

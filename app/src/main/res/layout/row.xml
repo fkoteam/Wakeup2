@@ -39,7 +39,8 @@
         <ImageView
             android:id="@+id/imageView1"
             android:src="@drawable/ic_action_alarm"
-            android:layout_gravity="center_vertical"/>
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical|left"/>
         </TableRow>
     </TableLayout>
 

@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Nilanchala
- *         <p/>
  *         Broadcast reciever, starts when the device gets starts.
  *         Start your repeating alarm here.
  */
@@ -22,23 +20,10 @@ public class DeviceBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences sharedPref = context.getSharedPreferences(
-                context.getString(R.string.preference_alarms_file), Context.MODE_PRIVATE);
-        List<AlarmInfo> currentAlarms = new ArrayList<AlarmInfo>();
 
-        //      load tasks from preference
 
-        try{
-            currentAlarms = (ArrayList<AlarmInfo>) ObjectSerializer.deserialize(sharedPref.getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>())));
-            for(AlarmInfo ai : currentAlarms)
-            {
-                if(ai.active)
-                    Utils.startAlarm(ai, context,false);
-            }
+        AlarmList.initAlarmPrefs(context);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
 
     }

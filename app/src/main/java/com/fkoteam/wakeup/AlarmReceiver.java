@@ -66,6 +66,8 @@ final boolean online=intent.getBooleanExtra("online",false);
                         serviceIntent.putExtra("isConnected",isConnected?1:0);
                         serviceIntent.putExtra("online",online);
                         serviceIntent.putExtra("vibration", intent.getBooleanExtra("vibration", false));
+                        serviceIntent.setAction(String.valueOf(intent.getIntExtra("idAlarm", -1)));
+
 
                         context.startService(serviceIntent);
 

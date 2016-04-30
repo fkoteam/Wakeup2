@@ -31,13 +31,17 @@ public class AlarmFired extends AppCompatActivity {
     private static Timer timer;
     Button btnCancelPopup;
     private boolean isInFocus = false;
+    int idAlarm;
+    boolean buttonClicked=false;
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_fired);
+        buttonClicked=false;
 
 
         mAdView = (AdView) findViewById(R.id.adView);
@@ -51,8 +55,8 @@ public class AlarmFired extends AppCompatActivity {
             timer.schedule(new autoSnooze(), 3 * 60 * 1000);
 
 
-            Bundle b = getIntent().getExtras();
-            final int idAlarm = b.getInt("idAlarm");
+        Bundle b = getIntent().getExtras();
+            idAlarm = b.getInt("idAlarm");
             final int isConnected = b.getInt("isConnected");
             final boolean online = b.getBoolean("online");
 
@@ -101,54 +105,49 @@ public class AlarmFired extends AppCompatActivity {
             btnCancelPopup.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
-                    //ya no hace falta el autosnooze
-                    if (timer != null) {
-                        timer.cancel();
-                        timer.purge();
-                        timer = null;
-                    }
 
-                    Intent intent = new Intent();
+                    /*Intent intent = new Intent();
                     intent.setClass(AlarmFired.this,
                             MainActivity.class);
                     intent.putExtra("snooze", -1);
 
-                    intent.putExtra("tryDisableAlarm", idAlarm);
-
-                    WakeLocker.release();
-                    stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
-
-                    startActivity(intent);
-                    finish();
+                    intent.putExtra("tryDisableAlarm", idAlarm);*/
 
 
+                    /*startActivity(intent);*/
+                    if(!buttonClicked) {
+                        buttonClicked = true;
+                        int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
+                        if(pos>-1)
+                            AlarmList.tryDisableAlarm(pos);
+                        finish();
+
+                    }
                 }
             });
 
             btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
-                    //ya no hace falta el autosnooze
-                    if (timer != null) {
-                        timer.cancel();
-                        timer.purge();
-                        timer = null;
-                    }
 
-                    Intent intent = new Intent();
+
+                    /*Intent intent = new Intent();
                     intent.setClass(AlarmFired.this,
                             MainActivity.class);
 
                     intent.putExtra("snooze", seekBarToMinutes(progress));
-                    intent.putExtra("tryDisableAlarm", idAlarm);
+                    intent.putExtra("tryDisableAlarm", idAlarm);*/
 
 
-                    WakeLocker.release();
-                    stopService(new Intent(getApplicationContext(), MediaPlayerService.class));
+                    //startActivity(intent);
+                    if(!buttonClicked) {
 
-                    startActivity(intent);
-                    finish();
-
+                        buttonClicked = true;
+                        int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
+                        if(pos>-1)
+                            AlarmList.snoozeAlarm(seekBarToMinutes(progress), pos);
+                        finish();
+                    }
 
                 }
             });
@@ -209,7 +208,23 @@ public class AlarmFired extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        if (!isInFocus) finish();
+        if (!isInFocus) {
+
+
+            WakeLocker.release();
+            if(buttonClicked) {
+                Intent intentMediaPlayer = new Intent(getApplicationContext(), MediaPlayerService.class);
+                intentMediaPlayer.setAction(String.valueOf(idAlarm));
+                stopService(intentMediaPlayer);
+            }
+            else
+            {
+                int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
+                if(pos>-1)
+                    AlarmList.tryDisableAlarm(idAlarm);
+            }
+            finish();
+        }
     }
 
     @Override
