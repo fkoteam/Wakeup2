@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
             mAdView = (AdView) findViewById(R.id.adViewHome);
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").addTestDevice("DE266E0FACC2F0D7336E2678258DDD82").build();
             mAdView.loadAd(adRequest);
             addButton = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -303,7 +303,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-                            ai.modifyValues(txtTime.getText() + "", hourInt, minuteInt, ((CheckBox) popupView.findViewById(R.id.checkMon)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkTue)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkWed)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkThu)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkFri)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSat)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSun)).isChecked(), seekBar.getProgress(), internet, vibration, snoozingId, snoozingTime, snoozed);
+                            //ai.modifyValues(txtTime.getText() + "", hourInt, minuteInt, ((CheckBox) popupView.findViewById(R.id.checkMon)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkTue)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkWed)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkThu)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkFri)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSat)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSun)).isChecked(), seekBar.getProgress(), internet, vibration, snoozingId, snoozingTime, snoozed);
+                            ai.modifyValues(txtTime.getText() + "", hourInt, minuteInt, ((CheckBox) popupView.findViewById(R.id.checkMon)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkTue)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkWed)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkThu)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkFri)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSat)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSun)).isChecked(), seekBar.getProgress(), internet, vibration, null, null, 0);
                             al.getCurrentAlarms().set(position, ai);
                             AlarmList.saveData();
                             listAdapter.notifyDataSetChanged();
@@ -551,10 +552,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String s = "";
                 if (al.getCurrentAlarms().get(position).getSnoozed() > 1)
                     s = getString(R.string.plural);
-                textRepeatTmp += "\n(" + getString(R.string.snoozed) + " " + al.getCurrentAlarms().get(position).getSnoozed() + " " + getString(R.string.minute) + s + ")";
+                if(textRepeatTmp.length()>0)
+                    textRepeatTmp += "\n";
+                textRepeatTmp += "(" + getString(R.string.snoozed) + " " + al.getCurrentAlarms().get(position).getSnoozed() + " " + getString(R.string.minute) + s + ")";
             }
 
             textview.setText(al.getCurrentAlarms().get(position).getTxtTimeAlarm());
+            if(textRepeatTmp.length()>0)
+                textRepeat.setVisibility(View.VISIBLE) ;
+            else
+                textRepeat.setVisibility(View.GONE);
             textRepeat.setText(textRepeatTmp);
 
             return convertView;
@@ -721,6 +728,7 @@ boolean haveInternet=true;
     @Override
     protected void onResume() {
         super.onResume();
+        AlarmList.stopMediaPlayer();
         if(mAdView!=null)
             mAdView.resume();
         listAdapter.notifyDataSetChanged();

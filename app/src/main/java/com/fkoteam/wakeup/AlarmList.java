@@ -25,7 +25,8 @@ import java.util.Calendar;
  */
 public class AlarmList {
     private static AlarmList instance;
-    private static MainActivity mainActivity;
+    private static Context mainActivity;
+    private static Intent serviceIntentMediaPlayer;
 
     private AlarmList(){}
     public static synchronized AlarmList getInstance(){
@@ -78,14 +79,15 @@ public class AlarmList {
     public static void initAlarmPrefs(Context mainActivity) {
         boolean firstTime = false;
         if(getMainActivity()==null)
-            setMainActivity((MainActivity) mainActivity);
-        AlarmList.setSharedPref( mainActivity.getSharedPreferences(
+            setMainActivity( mainActivity);
+        AlarmList.setSharedPref(mainActivity.getSharedPreferences(
                 mainActivity.getString(R.string.preference_alarms_file), Context.MODE_PRIVATE));
         if (null == AlarmList.getCurrentAlarms() ||  AlarmList.getCurrentAlarms().size()==0) {
             AlarmList.setCurrentAlarms(new ArrayList<AlarmInfo>());
             firstTime = true;
         }
 
+        stopMediaPlayer();
         //      load tasks from preference
         try {
             AlarmList.setCurrentAlarms((ArrayList<AlarmInfo>) ObjectSerializer.deserialize(AlarmList.getSharedPref().getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>()))));
@@ -105,6 +107,12 @@ public class AlarmList {
         }
     }
 
+    public static void stopMediaPlayer() {
+        if(serviceIntentMediaPlayer!=null) {
+            mainActivity.stopService(serviceIntentMediaPlayer);
+            serviceIntentMediaPlayer=null;
+        }
+    }
 
 
     public static void startAlarm(AlarmInfo t,  boolean isModify) {
@@ -482,11 +490,19 @@ public class AlarmList {
 
     }
 
-    public static MainActivity getMainActivity() {
+    public static Context getMainActivity() {
         return mainActivity;
     }
 
-    public static void setMainActivity(MainActivity mainActivity) {
+    public static void setMainActivity(Context mainActivity) {
         AlarmList.mainActivity = mainActivity;
+    }
+
+    public static Intent getServiceIntentMediaPlayer() {
+        return serviceIntentMediaPlayer;
+    }
+
+    public static void setServiceIntentMediaPlayer(Intent serviceIntentMediaPlayer) {
+        AlarmList.serviceIntentMediaPlayer = serviceIntentMediaPlayer;
     }
 }

@@ -87,7 +87,7 @@ public class MediaPlayerService extends Service {
                 .execute();
 
 
-        return START_REDELIVER_INTENT;
+        return START_NOT_STICKY;
     }
 
 

@@ -3,6 +3,7 @@ package com.fkoteam.wakeup;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,6 +11,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +23,7 @@ import android.widget.TextView;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,13 +44,41 @@ public class AlarmFired extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_fired);
         buttonClicked=false;
 
+        SimpleDateFormat format1 = new SimpleDateFormat("HH:mm");
+        Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mActionBarToolbar);
+        Calendar timestamp = Calendar.getInstance();
+        Spannable text = new SpannableString(getString(R.string.alarm_at)+" "+format1.format(timestamp.getTime()));
+        text.setSpan(new ForegroundColorSpan(Color.WHITE), 0, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        getSupportActionBar().setTitle(text);
+
+
+        if(AlarmList.getServiceIntentMediaPlayer()!=null) {
+            stopService(AlarmList.getServiceIntentMediaPlayer());
+            AlarmList.setServiceIntentMediaPlayer(null);
+        }
+
+        Bundle b = getIntent().getExtras();
+        Intent serviceIntent = new Intent(this,MediaPlayerService.class);
+        serviceIntent.putExtra("idAlarm", b.getInt("idAlarm", -1));
+        if(b.getInt("idAlarm", -1)==-1)
+            Log.i("ERROR","error");
+        serviceIntent.putExtra("typeAlarm",b.getInt("typeAlarm", 0));
+        serviceIntent.putExtra("isConnected",b.getInt("isConnected", 0));
+        serviceIntent.putExtra("online",b.getBoolean("online", false));
+        serviceIntent.putExtra("vibration", b.getBoolean("vibration", false));
+
+        AlarmList.setServiceIntentMediaPlayer(serviceIntent);
+        startService(serviceIntent);
 
         mAdView = (AdView) findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").build();
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").addTestDevice("DE266E0FACC2F0D7336E2678258DDD82").build();
             mAdView.loadAd(adRequest);
 
 
@@ -55,7 +88,6 @@ public class AlarmFired extends AppCompatActivity {
             timer.schedule(new autoSnooze(), 3 * 60 * 1000);
 
 
-        Bundle b = getIntent().getExtras();
             idAlarm = b.getInt("idAlarm");
             final int isConnected = b.getInt("isConnected");
             final boolean online = b.getBoolean("online");
@@ -116,6 +148,7 @@ public class AlarmFired extends AppCompatActivity {
 
                     /*startActivity(intent);*/
                     if(!buttonClicked) {
+
                         buttonClicked = true;
                         int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
                         if(pos>-1)
@@ -141,6 +174,7 @@ public class AlarmFired extends AppCompatActivity {
 
                     //startActivity(intent);
                     if(!buttonClicked) {
+
 
                         buttonClicked = true;
                         int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
@@ -211,17 +245,16 @@ public class AlarmFired extends AppCompatActivity {
         if (!isInFocus) {
 
 
-            WakeLocker.release();
-            if(buttonClicked) {
-                Intent intentMediaPlayer = new Intent(getApplicationContext(), MediaPlayerService.class);
-                intentMediaPlayer.setAction(String.valueOf(idAlarm));
-                stopService(intentMediaPlayer);
+            if(AlarmList.getServiceIntentMediaPlayer()!=null) {
+                stopService(AlarmList.getServiceIntentMediaPlayer());
+                AlarmList.setServiceIntentMediaPlayer(null);
             }
-            else
-            {
+            WakeLocker.release();
+            if(!buttonClicked) {
+
                 int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
                 if(pos>-1)
-                    AlarmList.tryDisableAlarm(idAlarm);
+                    AlarmList.tryDisableAlarm(pos);
             }
             finish();
         }
