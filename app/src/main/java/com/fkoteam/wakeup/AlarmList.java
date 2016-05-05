@@ -27,7 +27,6 @@ import java.util.Calendar;
 public class AlarmList {
     private static AlarmList instance;
     private static Context mainActivity;
-    private static Intent serviceIntentMediaPlayer;
 
     private AlarmList(){}
     public static synchronized AlarmList getInstance(){
@@ -63,9 +62,11 @@ public class AlarmList {
         for (AlarmInfo ai : getCurrentAlarms()) {
             if (ai.getSnoozingId() != null && ai.getSnoozingId().intValue() == id) {
                 ai.setPosition(pos);
+
                 return ai;
             }
             if (ai.findAlarm(id)) {
+
                 ai.setPosition(pos);
 
                 return ai;
@@ -112,12 +113,7 @@ public class AlarmList {
         }
     }
 
-    public static void stopMediaPlayer() {
-        if(serviceIntentMediaPlayer!=null) {
-            mainActivity.stopService(serviceIntentMediaPlayer);
-            serviceIntentMediaPlayer=null;
-        }
-    }
+
 
 
     public static void startAlarm(AlarmInfo t,  boolean isModify, int pos) {
@@ -354,21 +350,32 @@ public class AlarmList {
     }
 
 
+    public static void stopMediaPlayer() {
+        Intent serviceIntent = new Intent(mainActivity,MediaPlayerService.class);
+        mainActivity.stopService(serviceIntent);
+
+
+    }
+
+
     public static int unSnoozeAlarm(Integer idAlarm, int position) {
+
         if(idAlarm!=null) {
             AlarmInfo ai = getAlarmById(idAlarm);
-            if (ai.getSnoozingId() != null)
-                stopAlarm(ai.getSnoozingId().intValue());
-            int pos = 0;
-            if (position > -1)
-                pos = position;
-            else
-                pos = ai.getPosition();
-            getCurrentAlarms().get(pos).setSnoozed(0);
-            getCurrentAlarms().get(pos).setSnoozingTime(null);
-            getCurrentAlarms().get(pos).setSnoozingId(null);
-            saveData();
-            return pos;
+            if(ai!=null) {
+                if (ai.getSnoozingId() != null)
+                    stopAlarm(ai.getSnoozingId().intValue());
+                int pos = 0;
+                if (position > -1)
+                    pos = position;
+                else
+                    pos = ai.getPosition();
+                getCurrentAlarms().get(pos).setSnoozed(0);
+                getCurrentAlarms().get(pos).setSnoozingTime(null);
+                getCurrentAlarms().get(pos).setSnoozingId(null);
+                saveData();
+                return pos;
+            }
         }
         return -1;
 
@@ -377,6 +384,7 @@ public class AlarmList {
 
 
     public static void unSnoozeAlarmInThePast(Integer idAlarm, int position) {
+
         if(idAlarm!=null) {
             AlarmInfo ai = getAlarmById(idAlarm);
             boolean inThePast=false;
@@ -510,11 +518,5 @@ public class AlarmList {
         AlarmList.mainActivity = mainActivity;
     }
 
-    public static Intent getServiceIntentMediaPlayer() {
-        return serviceIntentMediaPlayer;
-    }
 
-    public static void setServiceIntentMediaPlayer(Intent serviceIntentMediaPlayer) {
-        AlarmList.serviceIntentMediaPlayer = serviceIntentMediaPlayer;
-    }
 }
