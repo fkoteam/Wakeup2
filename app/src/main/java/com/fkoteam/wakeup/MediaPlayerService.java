@@ -14,7 +14,10 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -41,10 +44,25 @@ public class MediaPlayerService extends Service {
     AudioManager mAudioManager;
     int userVolume;
 
-
     // Vibrate the mobile phone
     Vibrator vibrator = null;
     boolean ringing = false;
+
+    private MyHandler myHandler;
+
+    private final class MyHandler extends Handler {
+        public MyHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+                //use the unique startId so you don't stop the
+                //service while processing other requests
+                stopSelfResult(msg.arg1);
+
+        }
+    }
 
 
     @Override
@@ -54,8 +72,12 @@ public class MediaPlayerService extends Service {
 
     @Override
     public void onCreate() {
-        super.onCreate();
-
+//Create a new HandlerThread with a specified priority
+        HandlerThread thread = new HandlerThread("MyHandlerThread");
+        //Start the handler thread so that our Handler queue will start processing messages
+        thread.start();
+        //Run the handler using the new HandlerThread
+        myHandler = new MyHandler(thread.getLooper());
 
     }
 
@@ -81,6 +103,9 @@ public class MediaPlayerService extends Service {
         userVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         super.onStartCommand(intent, flags, startId);
 
+        Message msg = myHandler.obtainMessage();
+        msg.arg1 = startId;
+        myHandler.sendMessage(msg);
 
         myTaskParams = new MyTaskParams(intent.getIntExtra("typeAlarm", 0), intent.getIntExtra("isConnected", 0), intent.getBooleanExtra("online", false), intent.getBooleanExtra("vibration", false));
         new Player()
@@ -89,6 +114,7 @@ public class MediaPlayerService extends Service {
 
         return START_NOT_STICKY;
     }
+
 
 
     private static class MyTaskParams {
@@ -305,4 +331,5 @@ public class MediaPlayerService extends Service {
 
         }
     }
+
 }

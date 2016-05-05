@@ -38,6 +38,7 @@ public class AlarmFired extends AppCompatActivity {
     private boolean isInFocus = false;
     int idAlarm;
     boolean buttonClicked=false;
+    private Intent serviceIntentMediaPlayer;
 
 
 
@@ -58,27 +59,28 @@ public class AlarmFired extends AppCompatActivity {
         text.setSpan(new ForegroundColorSpan(Color.WHITE), 0, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         getSupportActionBar().setTitle(text);
 
-        if(AlarmList.getCurrentAlarms()==null || AlarmList.getCurrentAlarms().size()>1)
+        if(AlarmList.getCurrentAlarms()==null || AlarmList.getCurrentAlarms().size()<1) {
             AlarmList.initAlarmPrefs(getApplicationContext(), false);
+        }
 
-
-        if(AlarmList.getServiceIntentMediaPlayer()!=null) {
-            stopService(AlarmList.getServiceIntentMediaPlayer());
-            AlarmList.setServiceIntentMediaPlayer(null);
+        if(serviceIntentMediaPlayer!=null) {
+            stopService(serviceIntentMediaPlayer);
+            serviceIntentMediaPlayer=null;
         }
 
         Bundle b = getIntent().getExtras();
         Intent serviceIntent = new Intent(this,MediaPlayerService.class);
-        serviceIntent.putExtra("idAlarm", b.getInt("idAlarm", -1));
-        if(b.getInt("idAlarm", -1)==-1)
+        idAlarm= b.getInt("idAlarm", -1);
+        serviceIntent.putExtra("idAlarm",idAlarm);
+        if(idAlarm==-1)
             Log.i("ERROR","error");
         serviceIntent.putExtra("typeAlarm",b.getInt("typeAlarm", 0));
         serviceIntent.putExtra("isConnected",b.getInt("isConnected", 0));
         serviceIntent.putExtra("online",b.getBoolean("online", false));
         serviceIntent.putExtra("vibration", b.getBoolean("vibration", false));
 
-        AlarmList.setServiceIntentMediaPlayer(serviceIntent);
-        startService(serviceIntent);
+        serviceIntentMediaPlayer=serviceIntent;
+        startService(serviceIntentMediaPlayer);
 
         mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").addTestDevice("DE266E0FACC2F0D7336E2678258DDD82").build();
@@ -91,7 +93,6 @@ public class AlarmFired extends AppCompatActivity {
             timer.schedule(new autoSnooze(), 3 * 60 * 1000);
 
 
-            idAlarm = b.getInt("idAlarm");
             final int isConnected = b.getInt("isConnected");
             final boolean online = b.getBoolean("online");
 
@@ -150,8 +151,8 @@ public class AlarmFired extends AppCompatActivity {
 
 
                     /*startActivity(intent);*/
-                    if(!buttonClicked) {
 
+                    if(!buttonClicked) {
                         buttonClicked = true;
                         int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
                         if(pos>-1)
@@ -192,6 +193,8 @@ public class AlarmFired extends AppCompatActivity {
 
 
     }
+
+
 
 
     private int seekBarToMinutes(int progress)
@@ -248,13 +251,13 @@ public class AlarmFired extends AppCompatActivity {
         if (!isInFocus) {
 
 
-            if(AlarmList.getServiceIntentMediaPlayer()!=null) {
-                stopService(AlarmList.getServiceIntentMediaPlayer());
-                AlarmList.setServiceIntentMediaPlayer(null);
+            if(serviceIntentMediaPlayer!=null) {
+                stopService(serviceIntentMediaPlayer);
+                serviceIntentMediaPlayer=null;
             }
             WakeLocker.release();
-            if(!buttonClicked) {
 
+            if(!buttonClicked) {
                 int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
                 if(pos>-1)
                     AlarmList.tryDisableAlarm(pos);
@@ -288,4 +291,6 @@ public class AlarmFired extends AppCompatActivity {
             handler.sendEmptyMessage(0);
         }
     }
+
+
 }

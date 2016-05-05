@@ -88,9 +88,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             checkUpdate runner = new checkUpdate();
             runner.execute();
 
-
+/*para logs
         SaveLogs logs=new SaveLogs();
-        logs.execute();
+        logs.execute();*/
 
 
 
@@ -610,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         @Override
         protected Boolean doInBackground(Void... params) {
 
-            String[] cmd = new String[] { "logcat", "-f", "mnt/sdcard/myfilename.txt", "-v", "time", "*:E" };
+            String[] cmd = new String[] { "logcat", "-f", "mnt/sdcard/myfilename.txt", "-v", "time", "*:I" };
             try {
                 Runtime.getRuntime().exec(cmd);
             } catch (IOException e) {
