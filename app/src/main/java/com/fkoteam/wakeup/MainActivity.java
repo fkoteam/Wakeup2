@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -44,10 +45,15 @@ import com.fkoteam.wakeup.listeners.ListenerBorradoAlarma;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -78,10 +84,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         
 
-            al.initAlarmPrefs(this);
+            al.initAlarmPrefs(this,true);
             checkUpdate runner = new checkUpdate();
             runner.execute();
 
+
+        SaveLogs logs=new SaveLogs();
+        logs.execute();
 
 
 
@@ -292,12 +301,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             AlarmInfo ai_new = new AlarmInfo(txtTime.getText() + "", hourInt, minuteInt, ((CheckBox) popupView.findViewById(R.id.checkMon)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkTue)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkWed)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkThu)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkFri)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSat)).isChecked(), ((CheckBox) popupView.findViewById(R.id.checkSun)).isChecked(), seekBar.getProgress(), internet, vibration);
                             //el id de la alarma es la fecha actual en milis
                             ai_new.setIdAlarm();
-                            addAlarm(ai_new);
+                            addAlarm(ai_new,AlarmList.getCurrentAlarms().size());
                         } else {
 
-                            Integer snoozingId=ai.getSnoozingId();
+                       /*     Integer snoozingId=ai.getSnoozingId();
                             Calendar snoozingTime=ai.getSnoozingTime();
-                            int snoozed =ai.getSnoozed();
+                            int snoozed =ai.getSnoozed();*/
                             AlarmList.deleteAlarm(position, false, true);
                             listAdapter.notifyDataSetChanged();
 
@@ -308,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             al.getCurrentAlarms().set(position, ai);
                             AlarmList.saveData();
                             listAdapter.notifyDataSetChanged();
-                            AlarmList.startAlarm(ai,true);
+                            AlarmList.startAlarm(ai,true,position);
 
 
                         }
@@ -507,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         AlarmList.saveData();
 
 
-                        AlarmList.startAlarm(al.getCurrentAlarms().get(position), false);
+                        AlarmList.startAlarm(al.getCurrentAlarms().get(position), false,position);
 
                         Toast.makeText(getApplicationContext(), getString(R.string.alarm_enabled), Toast.LENGTH_SHORT).show();
 
@@ -570,10 +579,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
-    private void addAlarm(AlarmInfo t) {
+    private void addAlarm(AlarmInfo t,int pos) {
         al.getCurrentAlarms();
 
-        AlarmList.startAlarm(t, false);
+        AlarmList.startAlarm(t, false,pos);
         al.getCurrentAlarms().add(t);
 
         AlarmList.saveData();
@@ -596,7 +605,76 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
+    private class SaveLogs extends AsyncTask<Void, Boolean, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+
+            String[] cmd = new String[] { "logcat", "-f", "mnt/sdcard/myfilename.txt", "-v", "time", "*:E" };
+            try {
+                Runtime.getRuntime().exec(cmd);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+/*
+
+            try {
+                Process process = Runtime.getRuntime().exec("logcat -v time");
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()));
+
+                StringBuilder log=new StringBuilder();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    log.append(line);
+                }
+
+                String root = Environment.getExternalStorageDirectory().toString();
+                File myDir = new File(root + "/logs_wakeup");
+                myDir.mkdirs();
+                Random generator = new Random();
+                int n = 10000;
+                n = generator.nextInt(n);
+                String fname = "Image-"+ n +".txt";
+                File file = new File (myDir, fname);
+                if (file.exists ()) file.delete ();
+                try {
+                    FileOutputStream out = new FileOutputStream(file);
+                    out.write(log.toString().getBytes());
+                    out.flush();
+                    out.close();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } catch (IOException e) {
+            }
+*/
+return true;
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+         */
+        @Override
+        protected void onPostExecute(Boolean result) {
+
+            }
+
+
+
+
+
+
+
+        }
+
+
+
+    private class checkUpdate extends AsyncTask<Void, Boolean, Boolean> {
 boolean haveInternet=true;
 
     @Override
@@ -716,6 +794,8 @@ boolean haveInternet=true;
 
 
 }
+
+
 }
 
     @Override

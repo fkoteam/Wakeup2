@@ -22,7 +22,7 @@ public class DeviceBootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
 
-        AlarmList.initAlarmPrefs(context);
+        AlarmList.initAlarmPrefs(context,true);
 
 
 

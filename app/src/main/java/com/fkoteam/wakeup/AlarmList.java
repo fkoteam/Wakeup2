@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -59,7 +60,7 @@ public class AlarmList {
     public static AlarmInfo getAlarmById(int id) {
 
         int pos = 0;
-        for (AlarmInfo ai : AlarmList.getCurrentAlarms()) {
+        for (AlarmInfo ai : getCurrentAlarms()) {
             if (ai.getSnoozingId() != null && ai.getSnoozingId().intValue() == id) {
                 ai.setPosition(pos);
                 return ai;
@@ -76,7 +77,11 @@ public class AlarmList {
     }
 
 
-    public static void initAlarmPrefs(Context mainActivity) {
+    public static void initAlarmPrefs(Context mainActivity,boolean resetAlarms) {
+
+
+
+
         boolean firstTime = false;
         if(getMainActivity()==null)
             setMainActivity( mainActivity);
@@ -92,11 +97,11 @@ public class AlarmList {
         try {
             AlarmList.setCurrentAlarms((ArrayList<AlarmInfo>) ObjectSerializer.deserialize(AlarmList.getSharedPref().getString("AlarmasPrefs", ObjectSerializer.serialize(new ArrayList<AlarmInfo>()))));
             int pos = 0;
-            if (firstTime) {
+            if (firstTime && resetAlarms) {
                 for (AlarmInfo ai : AlarmList.getCurrentAlarms()) {
                     if (ai.active) {
                         unSnoozeAlarmInThePast(ai.getSnoozingId(), pos);
-                        startAlarm(ai,  false);
+                        startAlarm(ai,  false,pos);
                     }
                     pos++;
                 }
@@ -115,7 +120,7 @@ public class AlarmList {
     }
 
 
-    public static void startAlarm(AlarmInfo t,  boolean isModify) {
+    public static void startAlarm(AlarmInfo t,  boolean isModify, int pos) {
         AlarmManager manager = (AlarmManager) mainActivity.getSystemService(Context.ALARM_SERVICE);
 
 
@@ -152,7 +157,7 @@ public class AlarmList {
                     i++;
 
                     manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                            setCalendarAlarm(2, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+                            setCalendarAlarm(2, t.getHourAlarm(), t.getMinuteAlarm(),pos).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
 
                 }
                 if (t.repeatTue) {
@@ -168,7 +173,7 @@ public class AlarmList {
                     i++;
 
                     manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                            setCalendarAlarm(3, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+                            setCalendarAlarm(3, t.getHourAlarm(), t.getMinuteAlarm(),pos).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
                 }
                 if (t.repeatWed) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
@@ -183,7 +188,7 @@ public class AlarmList {
                     i++;
 
                     manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                            setCalendarAlarm(4, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+                            setCalendarAlarm(4, t.getHourAlarm(), t.getMinuteAlarm(),pos).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
                 }
                 if (t.repeatThu) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
@@ -199,7 +204,7 @@ public class AlarmList {
                     i++;
 
                     manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                            setCalendarAlarm(5, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+                            setCalendarAlarm(5, t.getHourAlarm(), t.getMinuteAlarm(),pos).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
                 }
                 if (t.repeatFri) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
@@ -214,7 +219,7 @@ public class AlarmList {
                     i++;
 
                     manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                            setCalendarAlarm(6, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+                            setCalendarAlarm(6, t.getHourAlarm(), t.getMinuteAlarm(),pos).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
                 }
                 if (t.repeatSat) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
@@ -229,7 +234,7 @@ public class AlarmList {
                     i++;
 
                     manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                            setCalendarAlarm(7, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+                            setCalendarAlarm(7, t.getHourAlarm(), t.getMinuteAlarm(),pos).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
                 }
                 if (t.repeatSun) {
                 /* Retrieve a PendingIntent that will perform a broadcast */
@@ -244,7 +249,7 @@ public class AlarmList {
                     i++;
 
                     manager.setRepeating(AlarmManager.RTC_WAKEUP,
-                            setCalendarAlarm(1, t.getHourAlarm(), t.getMinuteAlarm()).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
+                            setCalendarAlarm(1, t.getHourAlarm(), t.getMinuteAlarm(),pos).getTimeInMillis(), 24 * 7 * 60 * 60 * 1000, pendingIntent);
                 }
 
             } else {
@@ -260,8 +265,11 @@ public class AlarmList {
                 if ((t.getHourAlarm() < timestamp.get(Calendar.HOUR_OF_DAY)) || ((t.getHourAlarm() == timestamp.get(Calendar.HOUR_OF_DAY)) && (t.getMinuteAlarm() <= timestamp.get(Calendar.MINUTE))))
                     calendar.add(Calendar.DATE, 1);
 
+                if(pos<30)
+                    calendar.set(Calendar.SECOND, pos*2);
+                else
+                    calendar.set(Calendar.SECOND, 0);
 
-                calendar.set(Calendar.SECOND, 0);
 
 
             /* Retrieve a PendingIntent that will perform a broadcast */
@@ -285,7 +293,7 @@ public class AlarmList {
     }
 
 
-    private static Calendar setCalendarAlarm(int myAlarmDayOfTheWeek, int myAlarmHour, int myAlarmMinute) {
+    private static Calendar setCalendarAlarm(int myAlarmDayOfTheWeek, int myAlarmHour, int myAlarmMinute,int pos) {
         Calendar timestamp = Calendar.getInstance();
 
 
@@ -309,7 +317,11 @@ public class AlarmList {
 //Set the time of the AlarmManager:
         timestamp.set(Calendar.HOUR_OF_DAY, myAlarmHour);
         timestamp.set(Calendar.MINUTE, myAlarmMinute);
-        timestamp.set(Calendar.SECOND, 0);
+        if(pos<30)
+            timestamp.set(Calendar.SECOND, pos*2);
+        else
+            timestamp.set(Calendar.SECOND, 0);
+
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Log.i("ALARM" + myAlarmDayOfTheWeek, format1.format(timestamp.getTime()));
         return timestamp;
@@ -484,7 +496,7 @@ public class AlarmList {
         saveData();
 
 
-        startAlarm(getCurrentAlarms().get(pos), false);
+        startAlarm(getCurrentAlarms().get(pos), false,pos);
         WakeLocker.release();
 
 

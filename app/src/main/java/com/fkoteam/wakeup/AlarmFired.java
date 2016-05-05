@@ -58,6 +58,9 @@ public class AlarmFired extends AppCompatActivity {
         text.setSpan(new ForegroundColorSpan(Color.WHITE), 0, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         getSupportActionBar().setTitle(text);
 
+        if(AlarmList.getCurrentAlarms()==null || AlarmList.getCurrentAlarms().size()>1)
+            AlarmList.initAlarmPrefs(getApplicationContext(), false);
+
 
         if(AlarmList.getServiceIntentMediaPlayer()!=null) {
             stopService(AlarmList.getServiceIntentMediaPlayer());
