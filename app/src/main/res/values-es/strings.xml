@@ -18,7 +18,7 @@
     <string name="minute">minuto</string>
     <string name="monday">Lun</string>
     <string name="nature_sounds">Sonidos\nnaturaleza</string>
-    <string name="no_repeat">Sin repetición</string>
+    <string name="no_repeat"> </string>
     <string name="plural">s</string>
     <string name="repeat">Repetir:</string>
     <string name="saturday">Sáb</string>
@@ -40,4 +40,5 @@
     <string name="confirm_update_title">Actualizar app</string>
     <string name="question_update">¿Actualizar con la última versión?</string>
     <string name="internet_warning">Descarga nuevas melodías si hay conexión. Wifi recomendado</string>
+    <string name="alarm_at">Alarma:</string>
 </resources>

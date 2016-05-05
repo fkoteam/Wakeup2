@@ -33,7 +33,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
 
 
-final boolean online=intent.getBooleanExtra("online",false);
+        final boolean online=intent.getBooleanExtra("online",false);
 
         Thread t = new Thread() {
             @Override
@@ -56,18 +56,6 @@ final boolean online=intent.getBooleanExtra("online",false);
 
                     try {
 
-                        context.stopService(new Intent(context, MediaPlayerService.class));
-
-                        Intent serviceIntent = new Intent(context,MediaPlayerService.class);
-                        serviceIntent.putExtra("idAlarm", intent.getIntExtra("idAlarm", -1));
-                        if(intent.getIntExtra("idAlarm", -1)==-1)
-                            Log.i("ERROR","error");
-                        serviceIntent.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
-                        serviceIntent.putExtra("isConnected",isConnected?1:0);
-                        serviceIntent.putExtra("online",online);
-                        serviceIntent.putExtra("vibration", intent.getBooleanExtra("vibration", false));
-
-                        context.startService(serviceIntent);
 
 
                         Intent intent2=new Intent(context, AlarmFired.class);

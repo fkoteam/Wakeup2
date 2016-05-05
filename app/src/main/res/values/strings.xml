@@ -32,7 +32,6 @@
     <string name="title">Relaxing Wake up</string>
     <string name="confirm_delete_title">Confirm</string>
     <string name="alarm_enabled">Alarm enabled</string>
-    <string name="no_repeat">No repeat</string>
     <string name="snoozed">snoozed</string>
     <string name="add_alarm">Add an alarm</string>
     <string name="alarm_disabled">Alarm disabled</string>
@@ -46,6 +45,8 @@
     <string name="question_update">Update to new version?</string>
     <string name="confirm_update_title">Update app</string>
     <string name="internet_warning">Stream extra melodies from internet, if available. Wifi recommended</string>
+    <string name="no_repeat"> </string>
+    <string name="alarm_at">Alarm at</string>
 
 
 </resources>
