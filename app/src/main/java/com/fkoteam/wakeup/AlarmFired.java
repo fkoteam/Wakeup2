@@ -101,7 +101,6 @@ public class AlarmFired extends AppCompatActivity {
         serviceIntent.putExtra("isConnected",b.getInt("isConnected", 0));
         serviceIntent.putExtra("online",b.getBoolean("online", false));
         serviceIntent.putExtra("vibration", b.getBoolean("vibration", false));
-
         serviceIntentMediaPlayer=serviceIntent;
         startService(serviceIntentMediaPlayer);*/
 
@@ -112,111 +111,109 @@ public class AlarmFired extends AppCompatActivity {
 
         mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").addTestDevice("DE266E0FACC2F0D7336E2678258DDD82").build();
-            mAdView.loadAd(adRequest);
+        mAdView.loadAd(adRequest);
 
 
-            timer = new Timer("timer", true);
-            btnSnoozePopup = (Button) findViewById(R.id.snooze);
-            //si no se para en 3 minutos, autosnooze
-            timer.schedule(new autoSnooze(), 3 * 60 * 1000);
+        timer = new Timer("timer", true);
+        btnSnoozePopup = (Button) findViewById(R.id.snooze);
+        //si no se para en 3 minutos, autosnooze
+        timer.schedule(new autoSnooze(), 3 * 60 * 1000);
 
 
-            final int isConnected = b.getInt("isConnected");
-            final boolean online = b.getBoolean("online");
+        final int isConnected = b.getInt("isConnected");
+        final boolean online = b.getBoolean("online");
 
-            //el movil no está online y el usuario queria alarma online
-            if (isConnected == 0 && online) {
-                TextView connectionProblems = (TextView) findViewById(R.id.connectionProblems);
-                connectionProblems.setText(getString(R.string.connectionProblems));
+        //el movil no está online y el usuario queria alarma online
+        if (isConnected == 0 && online) {
+            TextView connectionProblems = (TextView) findViewById(R.id.connectionProblems);
+            connectionProblems.setText(getString(R.string.connectionProblems));
+
+        }
+        SeekBar seekSnooze = (SeekBar) findViewById(R.id.seekSnooze);
+
+
+        seekSnooze.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+                progress = progresValue;
+                TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
+                String s = "";
+                if (seekBarToMinutes(progress) > 1)
+                    s = getString(R.string.plural);
+
+                textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
 
             }
-            SeekBar seekSnooze = (SeekBar) findViewById(R.id.seekSnooze);
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
+                String s = "";
+                if (seekBarToMinutes(progress) > 1)
+                    s = getString(R.string.plural);
+
+                textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
+
+            }
+        });
 
 
-            seekSnooze.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
-                    progress = progresValue;
-                    TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
-                    String s = "";
-                    if (seekBarToMinutes(progress) > 1)
-                        s = getString(R.string.plural);
-
-                    textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
-
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    TextView textView = (TextView) findViewById(R.id.snoozeTimeTxt);
-                    String s = "";
-                    if (seekBarToMinutes(progress) > 1)
-                        s = getString(R.string.plural);
-
-                    textView.setText(seekBarToMinutes(progress) + " " + getString(R.string.minute) + s);
-
-                }
-            });
-
-
-            btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
-            btnCancelPopup.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
+        btnCancelPopup = (Button) findViewById(R.id.stopAlarm);
+        btnCancelPopup.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
 
 
                     /*Intent intent = new Intent();
                     intent.setClass(AlarmFired.this,
                             MainActivity.class);
                     intent.putExtra("snooze", -1);
-
                     intent.putExtra("tryDisableAlarm", idAlarm);*/
 
 
                     /*startActivity(intent);*/
 
-                    if(!buttonClicked) {
-                        buttonClicked = true;
-                        int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
-                        if(pos>-1)
-                            AlarmList.tryDisableAlarm(pos);
-                        finish();
+                if(!buttonClicked) {
+                    buttonClicked = true;
+                    int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
+                    if(pos>-1)
+                        AlarmList.tryDisableAlarm(pos);
+                    finish();
 
-                    }
                 }
-            });
+            }
+        });
 
-            btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
+        btnSnoozePopup.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
 
 
 
                     /*Intent intent = new Intent();
                     intent.setClass(AlarmFired.this,
                             MainActivity.class);
-
                     intent.putExtra("snooze", seekBarToMinutes(progress));
                     intent.putExtra("tryDisableAlarm", idAlarm);*/
 
 
-                    //startActivity(intent);
-                    if(!buttonClicked) {
+                //startActivity(intent);
+                if(!buttonClicked) {
 
 
-                        buttonClicked = true;
-                        int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
-                        if(pos>-1)
-                            AlarmList.snoozeAlarm(seekBarToMinutes(progress), pos);
-                        finish();
-                    }
-
+                    buttonClicked = true;
+                    int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
+                    if(pos>-1)
+                        AlarmList.snoozeAlarm(seekBarToMinutes(progress), pos);
+                    finish();
                 }
-            });
+
+            }
+        });
 
 
 
