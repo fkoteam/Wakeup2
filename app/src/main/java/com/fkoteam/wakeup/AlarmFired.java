@@ -2,10 +2,14 @@ package com.fkoteam.wakeup;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -38,8 +42,27 @@ public class AlarmFired extends AppCompatActivity {
     private boolean isInFocus = false;
     int idAlarm;
     boolean buttonClicked=false;
-    private Intent serviceIntentMediaPlayer;
+    MediaPlayerService mService;
+    boolean mBound = false;
+    Bundle b;
 
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to LocalService
+        Intent intent = new Intent(this, MediaPlayerService.class);
+        idAlarm= b.getInt("idAlarm", -1);
+        intent.putExtra("idAlarm",idAlarm);
+        if(idAlarm==-1)
+            Log.i("ERROR","error");
+        intent.putExtra("typeAlarm",b.getInt("typeAlarm", 0));
+        intent.putExtra("isConnected",b.getInt("isConnected", 0));
+        intent.putExtra("online",b.getBoolean("online", false));
+        intent.putExtra("vibration", b.getBoolean("vibration", false));
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
 
 
     @Override
@@ -63,13 +86,13 @@ public class AlarmFired extends AppCompatActivity {
             AlarmList.initAlarmPrefs(getApplicationContext(), false);
         }
 
-        if(serviceIntentMediaPlayer!=null) {
+        /*if(serviceIntentMediaPlayer!=null) {
             stopService(serviceIntentMediaPlayer);
             serviceIntentMediaPlayer=null;
-        }
+        }*/
 
-        Bundle b = getIntent().getExtras();
-        Intent serviceIntent = new Intent(this,MediaPlayerService.class);
+        b = getIntent().getExtras();
+        /*Intent serviceIntent = new Intent(this,MediaPlayerService.class);
         idAlarm= b.getInt("idAlarm", -1);
         serviceIntent.putExtra("idAlarm",idAlarm);
         if(idAlarm==-1)
@@ -80,7 +103,12 @@ public class AlarmFired extends AppCompatActivity {
         serviceIntent.putExtra("vibration", b.getBoolean("vibration", false));
 
         serviceIntentMediaPlayer=serviceIntent;
-        startService(serviceIntentMediaPlayer);
+        startService(serviceIntentMediaPlayer);*/
+
+        // Bind to LocalService
+        Intent intent = new Intent(this, MediaPlayerService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
 
         mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("1D2A83BF786B1B994E5672D7AE75A822").addTestDevice("DE266E0FACC2F0D7336E2678258DDD82").build();
@@ -251,10 +279,16 @@ public class AlarmFired extends AppCompatActivity {
         if (!isInFocus) {
 
 
-            if(serviceIntentMediaPlayer!=null) {
+            // Unbind from the service
+            if (mBound) {
+                unbindService(mConnection);
+                mBound = false;
+            }
+
+           /* if(serviceIntentMediaPlayer!=null) {
                 stopService(serviceIntentMediaPlayer);
                 serviceIntentMediaPlayer=null;
-            }
+            }*/
             WakeLocker.release();
 
             if(!buttonClicked) {
@@ -292,5 +326,22 @@ public class AlarmFired extends AppCompatActivity {
         }
     }
 
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
 }
