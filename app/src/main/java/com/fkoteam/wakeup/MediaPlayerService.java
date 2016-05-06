@@ -13,6 +13,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -48,27 +49,33 @@ public class MediaPlayerService extends Service {
     Vibrator vibrator = null;
     boolean ringing = false;
 
-    private MyHandler myHandler;
 
-    private final class MyHandler extends Handler {
-        public MyHandler(Looper looper) {
-            super(looper);
-        }
+    // Binder given to clients
+    private final IBinder mBinder = new LocalBinder();
+    // Random number generator
+    private final Random mGenerator = new Random();
 
-        @Override
-        public void handleMessage(Message msg) {
-                //use the unique startId so you don't stop the
-                //service while processing other requests
-                stopSelfResult(msg.arg1);
-
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+        MediaPlayerService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return MediaPlayerService.this;
         }
     }
-
 
     @Override
-    public IBinder onBind(Intent arg0) {
-        return null;
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
+
+    /** method for clients */
+    public int getRandomNumber() {
+        return mGenerator.nextInt(100);
+    }
+
 
     @Override
     public void onCreate() {
@@ -76,8 +83,7 @@ public class MediaPlayerService extends Service {
         HandlerThread thread = new HandlerThread("MyHandlerThread");
         //Start the handler thread so that our Handler queue will start processing messages
         thread.start();
-        //Run the handler using the new HandlerThread
-        myHandler = new MyHandler(thread.getLooper());
+
 
     }
 
@@ -103,9 +109,6 @@ public class MediaPlayerService extends Service {
         userVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         super.onStartCommand(intent, flags, startId);
 
-        Message msg = myHandler.obtainMessage();
-        msg.arg1 = startId;
-        myHandler.sendMessage(msg);
 
         myTaskParams = new MyTaskParams(intent.getIntExtra("typeAlarm", 0), intent.getIntExtra("isConnected", 0), intent.getBooleanExtra("online", false), intent.getBooleanExtra("vibration", false));
         new Player()
