@@ -68,6 +68,14 @@ public class MediaPlayerService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+
+        mAudioManager = (AudioManager) getApplicationContext().getSystemService(getApplicationContext().AUDIO_SERVICE);
+        userVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+
+        myTaskParams = new MyTaskParams(intent.getIntExtra("typeAlarm", 0), intent.getIntExtra("isConnected", 0), intent.getBooleanExtra("online", false), intent.getBooleanExtra("vibration", false));
+        new Player()
+                .execute();
         return mBinder;
     }
 
@@ -103,7 +111,7 @@ public class MediaPlayerService extends Service {
 
     }
 
-    @Override
+  /*  @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mAudioManager = (AudioManager) getApplicationContext().getSystemService(getApplicationContext().AUDIO_SERVICE);
         userVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -117,7 +125,7 @@ public class MediaPlayerService extends Service {
 
         return START_NOT_STICKY;
     }
-
+*/
 
 
     private static class MyTaskParams {

@@ -105,8 +105,8 @@ public class AlarmFired extends AppCompatActivity {
         startService(serviceIntentMediaPlayer);*/
 
         // Bind to LocalService
-        Intent intent = new Intent(this, MediaPlayerService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        /*Intent intent = new Intent(this, MediaPlayerService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);*/
 
 
         mAdView = (AdView) findViewById(R.id.adView);

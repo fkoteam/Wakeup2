@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -58,7 +59,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
 
 
-                        Intent intent2=new Intent(context, AlarmFired.class);
+                        Intent intent2=new Intent(context, AlarmIntentService.class);
 
                         intent2.putExtra("idAlarm", intent.getIntExtra("idAlarm", -1));
                         intent2.putExtra("typeAlarm",intent.getIntExtra("typeAlarm",0));
@@ -68,8 +69,9 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
 
 
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        context.startActivity(intent2);
+                        Log.i("SimpleWakefulReceiver", "Starting service @ " + SystemClock.elapsedRealtime());
+                        intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startWakefulService(context,intent2);
 
                     }catch (Exception e)
 
