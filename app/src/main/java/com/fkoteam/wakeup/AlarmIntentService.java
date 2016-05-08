@@ -30,7 +30,7 @@ public class AlarmIntentService extends IntentService {
 
         Log.i("SimpleWakefulReceiver", "Completed service @ " + SystemClock.elapsedRealtime());
 
-        intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity( intent2);
 
         AlarmReceiver.completeWakefulIntent(intent);

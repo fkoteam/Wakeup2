@@ -88,10 +88,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             checkUpdate runner = new checkUpdate();
             runner.execute();
 
-/*para logs
-        SaveLogs logs=new SaveLogs();
-        logs.execute();*/
-
+/*para logs*/
+        /*SaveLogs logs=new SaveLogs();
+        logs.execute();
+*/
 
 
             addButton.setOnClickListener(new View.OnClickListener() {
