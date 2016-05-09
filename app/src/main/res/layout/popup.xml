@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:background="@android:color/background_light">
-    <LinearLayout
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_margin="1dp"
-        android:background="#d4dadb"
+        android:background="@drawable/customborder"
         android:elevation="8dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+    android:fillViewport="false"
         >
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <ScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_margin="5dp">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtAddModifyAlarm"
                 android:text="@string/add_alarm"
+                android:textColor="#000000"
                 />
 
 
@@ -53,7 +57,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/repeat"
-                        android:layout_marginTop = "-5dp"/>
+                        android:layout_marginTop = "@dimen/popup_margin1"/>
 
 
                     <CheckBox
@@ -64,7 +68,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginTop = "-5dp"
+                        android:layout_marginTop = "@dimen/popup_margin1"
                        />
 
                 </TableRow>
@@ -79,7 +83,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginTop = "-7dp"
+                        android:layout_marginTop = "@dimen/popup_margin2"
                         />
                     <CheckBox
                         android:layout_width="wrap_content"
@@ -89,7 +93,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginTop = "-7dp"
+                        android:layout_marginTop = "@dimen/popup_margin2"
                         />
 
 </TableRow>
@@ -103,7 +107,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginTop = "-7dp"
+                        android:layout_marginTop = "@dimen/popup_margin2"
                         />
                     <CheckBox
                         android:layout_width="wrap_content"
@@ -113,7 +117,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginTop = "-7dp"
+                        android:layout_marginTop = "@dimen/popup_margin2"
                         />
 
                 </TableRow>
@@ -129,7 +133,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop = "-7dp"
+        android:layout_marginTop = "@dimen/popup_margin2"
         />
     <CheckBox
         android:layout_width="wrap_content"
@@ -139,7 +143,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop = "-7dp"
+        android:layout_marginTop = "@dimen/popup_margin2"
         />
 </TableRow>
 
@@ -154,7 +158,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/textVibrate"
                         android:textColor="#000000"
-                        android:layout_marginTop = "-5dp"
+                        android:layout_marginTop = "@dimen/popup_margin1"
                         />
 
                     <include layout="@layout/vibrate_question"/>
@@ -170,7 +174,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/textInternet"
                         android:textColor="#000000"
-                        android:layout_marginTop = "-5dp"
+                        android:layout_marginTop = "@dimen/popup_margin1"
 
                         />
 
@@ -186,7 +190,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop = "-5dp"
+                android:layout_marginTop = "@dimen/popup_margin1"
                 >
 
                 <TextView
@@ -194,7 +198,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/classical"
                     android:textSize="12dp"
-                    android:layout_margin="5dp"
+                    android:layout_margin="@dimen/popup_margin3"
                     android:textColor="#000000"
                     android:id="@+id/txtClassical"
                     />
@@ -204,7 +208,7 @@
                     android:id="@+id/seekBar"
                     android:layout_gravity="center_vertical"
                     android:max="1"
-                    android:layout_margin="5dp"
+                    android:layout_margin="@dimen/popup_margin3"
                     android:padding="7dp"
                     />
 
@@ -213,7 +217,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/nature_sounds"
                     android:textSize="12dp"
-                    android:layout_margin="5dp"
+                    android:layout_margin="@dimen/popup_margin3"
                     android:id="@+id/txtNatural"
                     android:textColor="#909090" />
             </LinearLayout>
@@ -223,7 +227,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop = "-5dp"
+                android:layout_marginTop = "@dimen/popup_margin1"
                 android:layout_gravity="center"
                 android:gravity="center_horizontal">
             <Button
@@ -231,16 +235,18 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel"
-                android:layout_marginTop = "-5dp"
+                android:layout_marginTop = "@dimen/popup_margin1"
                 />
             <Button
                 android:id="@+id/accept"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/accept"
-                android:layout_marginTop = "-5dp"
+                android:layout_marginTop = "@dimen/popup_margin1"
                 />
                 </LinearLayout>
+                </LinearLayout>
+        </ScrollView>
         </LinearLayout>
-    </LinearLayout>
-</LinearLayout>
+
+

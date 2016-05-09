@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -25,6 +27,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     AdView mAdView;
     private AlarmList al = AlarmList.getInstance();
+    PopupWindow popupWindow;
 
 
     public MainActivity() {
@@ -127,11 +131,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     = (LayoutInflater) getBaseContext()
                     .getSystemService(LAYOUT_INFLATER_SERVICE);
             final View popupView = layoutInflater.inflate(R.layout.popup, null);
-            final PopupWindow popupWindow = new PopupWindow(
+            popupWindow = new PopupWindow(
                     popupView,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             popupWindow.setFocusable(true);
+            popupWindow.setBackgroundDrawable(new ColorDrawable());
+            popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+
+                @Override
+                public void onDismiss() {
+                    click=true;
+                }
+            });
 
 
             if (ai != null) {
@@ -243,7 +255,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 txtNatural.setTextColor(Color.parseColor("#000000"));
 
             }
+
             seekTypeAlarm.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
 
 
                 @Override
@@ -817,7 +831,14 @@ boolean haveInternet=true;
     @Override
     public void onBackPressed() {
 
-        //do nothing
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+            popupWindow=null;
+            click=true;
+        } else {
+            click=true;
+            super.onBackPressed();
+        }
     }
 
 

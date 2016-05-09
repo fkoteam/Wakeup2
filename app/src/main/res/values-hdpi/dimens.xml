@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_horizontal_margin_fired">0dp</dimen>
+    <dimen name="activity_horizontal_margin">0dp</dimen>
+
+    <dimen name="popup_margin1">8dp</dimen>
+    <dimen name="popup_margin2">5dp</dimen>
+    <dimen name="popup_margin3">7dp</dimen>
+
+
+</resources>

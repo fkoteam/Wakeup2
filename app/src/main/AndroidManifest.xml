@@ -65,6 +65,7 @@
             android:name=".AlarmFired"
             android:label="@string/title_activity_alarm_fired"
             android:theme="@style/AppTheme.NoActionBar"
+            android:noHistory="true"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize"></activity>
         <!--Include the AdActivity configChanges and theme. -->
         <activity android:name="com.google.android.gms.ads.AdActivity"

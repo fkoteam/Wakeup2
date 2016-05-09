@@ -20,6 +20,8 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -62,6 +64,12 @@ public class AlarmFired extends AppCompatActivity {
         intent.putExtra("online",b.getBoolean("online", false));
         intent.putExtra("vibration", b.getBoolean("vibration", false));
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        final Window win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
     }
 
 
@@ -304,6 +312,14 @@ public class AlarmFired extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
+        if(!buttonClicked) {
+            buttonClicked = true;
+            int pos=AlarmList.unSnoozeAlarm(idAlarm, -1);
+            if(pos>-1)
+                AlarmList.tryDisableAlarm(pos);
+            finish();
+
+        }
     }
 
 
