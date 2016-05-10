@@ -20,6 +20,7 @@ import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -35,6 +36,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -154,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
             final TextView txtTime = (TextView) popupView.findViewById(R.id.txtTime);
+            disableSoftInputFromAppearing((EditText) txtTime);
             if (ai != null)
                 txtTime.setText(ai.getTxtTimeAlarm());
             txtTime.setOnClickListener(new View.OnClickListener() {
@@ -841,5 +844,17 @@ boolean haveInternet=true;
         }
     }
 
-
+    /**
+     * Disable soft keyboard from appearing, use in conjunction with android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+     * @param editText
+     */
+    public static void disableSoftInputFromAppearing(EditText editText) {
+        if (Build.VERSION.SDK_INT >= 11) {
+            editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
+            editText.setTextIsSelectable(true);
+        } else {
+            editText.setRawInputType(InputType.TYPE_NULL);
+            editText.setFocusable(true);
+        }
+    }
 }

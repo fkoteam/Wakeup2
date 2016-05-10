@@ -38,6 +38,7 @@
                     android:hint="@string/hour_hint"
                     android:textAlignment="center"
                     android:layout_gravity="center"
+                    android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
 
                     />
 
